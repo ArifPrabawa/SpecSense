@@ -1,4 +1,4 @@
-from app.parser import extract_sections, is_all_caps_header, is_markdown_header, is_numbered_header
+from app.parser import extract_sections, _is_all_caps_header, _is_markdown_header, _is_numbered_header
 
 def test_extract_sections_simple():
     sample_text = "# Introduction\nSome intro text.\n\n# Requirements\nContent here."
@@ -26,18 +26,18 @@ def test_empty_input():
     assert extract_sections(text) == expected
 
 def test_is_markdown_header():
-    assert is_markdown_header("# Section")
-    assert not is_markdown_header("Section")
+    assert _is_markdown_header("# Section")
+    assert not _is_markdown_header("Section")
 
 def test_is_numbered_header():
-    assert is_numbered_header("1. Introduction")
-    assert is_numbered_header("1.2.3 Overview")
-    assert not is_numbered_header("Version 1.3 applies")
+    assert _is_numbered_header("1. Introduction")
+    assert _is_numbered_header("1.2.3 Overview")
+    assert not _is_numbered_header("Version 1.3 applies")
 
 def test_is_all_caps_header():
-    assert is_all_caps_header("SYSTEM OVERVIEW")
-    assert not is_all_caps_header("Overview")
-    assert not is_all_caps_header("N/A")
+    assert _is_all_caps_header("SYSTEM OVERVIEW")
+    assert not _is_all_caps_header("Overview")
+    assert not _is_all_caps_header("N/A")
 
 from app.parser import parse_sections_with_bodies
 
