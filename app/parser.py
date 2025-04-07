@@ -44,3 +44,41 @@ def extract_sections(text):
         
     return sections
 
+
+def parse_sections_with_bodies(text):
+    sections = []
+    current_section = None
+    current_body = []
+
+    for line in text.splitlines():
+        line = line.strip()
+
+        # Check for any valid section header
+        if is_markdown_header(line):
+            section_title = line[2:].strip()
+        elif is_numbered_header(line) or is_all_caps_header(line):
+            section_title = line.strip()
+        else:
+            if current_section:
+                current_body.append(line)
+            continue
+
+        # Save previous section before starting a new one
+        if current_section or current_body:
+            sections.append({
+                "title": current_section,
+                "body": "\n".join(current_body).strip()
+            })
+            current_body = []
+
+        current_section = section_title
+
+
+    # Add the final section after loop ends
+    if current_section:
+        sections.append({
+            "title": current_section,
+            "body": "\n".join(current_body).strip()
+        })
+
+    return sections
