@@ -7,9 +7,10 @@ Built by a systems/test engineer rebuilding automation and development capabilit
 
 ---
 
-## Features (Coming Soon)
+## Features (In Progress)
 
-- [ ] Extract structured sections from raw SRS docs  
+- [x] Extract section headers from raw SRS documents (Markdown, Numbered, ALL CAPS)
+- [x] Return structured section data with titles and body content
 - [ ] Identify ambiguity or missing test coverage  
 - [ ] Suggest tests based on requirement language  
 - [ ] Optional Flask-based UI or API  
@@ -48,7 +49,31 @@ OPENAI_API_KEY=your-api-key-here
 A sample file is available as `.env.example`.
 
 ---
+## Example Usage
 
+```python
+from app.parser import parse_sections_with_bodies
+
+sample = """# Introduction
+This document outlines the system.
+
+1. Purpose
+The system shall provide user authentication.
+
+SYSTEM OVERVIEW
+This section defines system boundaries.
+"""
+
+output = parse_sections_with_bodies(sample)
+
+# Output:
+[
+    {"title": "Introduction", "body": "This document outlines the system."},
+    {"title": "1. Purpose", "body": "The system shall provide user authentication."},
+    {"title": "SYSTEM OVERVIEW", "body": "This section defines system boundaries."}
+]
+```
+---
 ## Project Structure
 
 ```
