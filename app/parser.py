@@ -17,7 +17,7 @@ def _is_numbered_header(line)-> bool:
 
 def _is_all_caps_header(line)-> bool:
     """Returns True if the line is in ALL CAPS and reasonably short (likely a section)."""
-    return re.match(r'^[A-Z\s]{5,}$', line) and len(line.split()) <= 5
+    return re.match(r'^[A-Z\s]+$', line) is not None and len(line.split()) <= 5
 
 def extract_sections(text):
     """
@@ -66,13 +66,23 @@ def parse_sections_with_bodies(text):
     current_section = None
     current_body = []
 
-    for line in text.splitlines():
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
         line = line.strip()
+        
+        # Look at previous and next lines to confirm isolation
+        prev_line = lines[i - 1].strip() if i > 0 else ""
+        next_line = lines[i + 1].strip() if i + 1 < len(lines) else ""
 
+        # Only treat ALL CAPS as header if visually separated
+        is_isolated_all_caps = (
+            _is_all_caps_header(line)
+            and (prev_line == "" or next_line == "")
+        )
         # Check for any valid section header
         if _is_markdown_header(line):
             section_title = line[2:].strip()
-        elif _is_numbered_header(line) or _is_all_caps_header(line):
+        elif _is_numbered_header(line) or is_isolated_all_caps:
             section_title = line.strip()
         else:
             # Accumulate body lines under current section

@@ -129,3 +129,21 @@ This section is in all caps.
         {"title": "SYSTEM OVERVIEW", "body": "This section is in all caps."}
     ]
     assert parse_sections_with_bodies(text) == expected
+
+def test_all_caps_header_detection():
+    text = """Intro paragraph.
+
+TEST
+This is a test section.
+
+SYSTEM OVERVIEW
+This section defines system boundaries.
+"""
+
+    expected = [
+        {"title": "TEST", "body": "This is a test section."},
+        {"title": "SYSTEM OVERVIEW", "body": "This section defines system boundaries."}
+    ]
+
+    result = parse_sections_with_bodies(text)
+    assert result == expected
