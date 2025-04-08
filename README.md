@@ -11,6 +11,7 @@ Built by a systems/test engineer rebuilding automation and development capabilit
 
 - [x] Extract section headers from raw SRS documents (Markdown, Numbered, ALL CAPS)
 - [x] Return structured section data with titles and body content
+- [x] Minimal Streamlit-based UI for document input and parsing
 - [ ] Identify ambiguity or missing test coverage  
 - [ ] Suggest tests based on requirement language  
 - [ ] Optional Flask-based UI or API  
@@ -74,6 +75,19 @@ output = parse_sections_with_bodies(sample)
 ]
 ```
 ---
+
+## Web Interface (Preview)
+
+A minimal Streamlit UI is now included to demonstrate parsing interactively.
+Run it with:
+
+```bash
+streamlit run ui/streamlit_app.py
+```
+Paste in raw SRS text and view extracted sections in an expandable layout.
+
+---
+
 ## Project Structure
 
 ```
