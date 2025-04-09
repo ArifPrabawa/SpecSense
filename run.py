@@ -1,24 +1,38 @@
 """
-CLI stub for SpecSense.
-
-Eventually this will:
-- Accept a file path
-- Parse it using the structured parser
-- Display results or send them to an LLM for analysis
+Manual dev script to test parser and LLM integration.
 """
 
 from app.parser import parse_sections_with_bodies
+from app.llm import analyze_requirement
+
 
 def main():
-    print("SpecSense CLI placeholder")
-    sample = """# Test Section
-This is a placeholder SRS block.
+    sample_text = """# Introduction
+This document outlines the system.
+
+1. Purpose
+The system shall allow access via fingerprint or password.
+
+SYSTEM OVERVIEW
+The system should be fast and user-friendly.
 """
-    output = parse_sections_with_bodies(sample)
-    for section in output:
+
+    print("Parsing sections...\n")
+    sections = parse_sections_with_bodies(sample_text)
+
+    for section in sections:
         print(f"== {section['title']} ==")
         print(section['body'])
         print()
+
+        print("-- LLM Analysis --")
+        try:
+            result = analyze_requirement(section["body"])
+            print(result)
+        except Exception as e:
+            print(f"[ERROR] Failed to analyze section: {e}")
+        print("\n" + "-" * 50 + "\n")
+
 
 if __name__ == "__main__":
     main()

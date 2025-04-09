@@ -69,7 +69,7 @@ def parse_sections_with_bodies(text):
     lines = text.splitlines()
     for i, line in enumerate(lines):
         line = line.strip()
-        
+    
         # Look at previous and next lines to confirm isolation
         prev_line = lines[i - 1].strip() if i > 0 else ""
         next_line = lines[i + 1].strip() if i + 1 < len(lines) else ""
