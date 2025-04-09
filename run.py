@@ -3,7 +3,7 @@ Manual dev script to test parser and LLM integration.
 """
 
 from app.parser import parse_sections_with_bodies
-from app.llm import analyze_requirement
+from app.llm import analyze_requirement, format_llm_response
 
 
 def main():
@@ -28,7 +28,9 @@ The system should be fast and user-friendly.
         print("-- LLM Analysis --")
         try:
             result = analyze_requirement(section["body"])
-            print(result)
+            formatted = format_llm_response(result)
+            print(formatted)
+
         except Exception as e:
             print(f"[ERROR] Failed to analyze section: {e}")
         print("\n" + "-" * 50 + "\n")
