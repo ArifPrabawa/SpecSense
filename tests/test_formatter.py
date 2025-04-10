@@ -36,3 +36,32 @@ def test_trims_spacing_and_indentation():
     raw = "   **Testing Challenges:**    \n    - Indented bullet    "
     expected = "**Testing Challenges:**\n- Indented bullet"
     assert format_llm_response(raw) == expected
+    
+# Test formatter behavior when looped over batch-style
+def test_batch_formatter_structure():
+    sections = [
+        {"title": "5.1 Intro", "body": "Requirement must be fulfilled."},
+        {"title": "5.2 Timeout", "body": "The system shall auto-logoff."}
+    ]
+
+    # Simulate LLM and formatter together (you could patch LLM if desired)
+    results = {}
+    for section in sections:
+        fake_raw = f"**Clarity:**\n- {section['body']}"
+        formatted = format_llm_response(fake_raw)
+        results[section["title"]] = {
+            "body": section["body"],
+            "raw": fake_raw,
+            "analysis": formatted
+        }
+
+    assert "5.1 Intro" in results
+    assert "Clarity" in results["5.2 Timeout"]["analysis"]
+
+# Test Skipped analysis handling
+def test_skipped_analysis_formatting():
+    skipped_output = "Skipped analysis: too short"
+    result = format_llm_response(skipped_output)
+
+    # Make sure it doesn't crash and passes through
+    assert skipped_output in result
