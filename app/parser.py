@@ -7,6 +7,8 @@ Public functions:
 """
 
 import re
+
+
 def _is_markdown_header(line)-> bool:
     """Returns True if the line is a Markdown-style header (e.g., '# Section')."""
     return line.startswith("# ")
