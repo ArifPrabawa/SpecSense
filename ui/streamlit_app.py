@@ -6,6 +6,8 @@ Allows users to input SRS text and view extracted section headers and content.
 
 import streamlit as st
 from app.parser import parse_sections_with_bodies
+from app.formatter import format_llm_response
+from app.llm import analyze_requirement
 
 def main():
     """Renders the Streamlit UI and handles user interaction."""
@@ -33,6 +35,12 @@ def main():
         for section in results:
             with st.expander(section["title"]):
                 st.markdown(f"```\n{section['body']}\n```")
+                analysis = analyze_requirement(section['body'])
+                if "Skipped analysis" in analysis:
+                    st.info(analysis)
+                else:
+                    formatted = format_llm_response(analysis)
+                    st.markdown(formatted)
 
         # Add divider after the output
         st.divider()
