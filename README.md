@@ -12,7 +12,7 @@ Built by a systems/test engineer rebuilding automation and development capabilit
 - [x] Extract section headers from raw SRS documents (Markdown, Numbered, ALL CAPS)
 - [x] Return structured section data with titles and body content
 - [x] Minimal Streamlit-based UI for document input and parsing
-- [ ] Identify ambiguity or missing test coverage  
++ [x] Identify ambiguity or missing test coverage (via OpenAI, in UI) 
 - [ ] Suggest tests based on requirement language  
 - [ ] Optional Flask-based UI or API  
 
@@ -76,15 +76,22 @@ output = parse_sections_with_bodies(sample)
 ```
 ---
 
-## Web Interface (Preview)
+## Web Interface (LLM-Enhanced)
 
-A minimal Streamlit UI is now included to demonstrate parsing interactively.
+A minimal Streamlit UI is now included to demonstrate parsing and clarity analysis.
+
 Run it with:
 
 ```bash
 streamlit run ui/streamlit_app.py
 ```
-Paste in raw SRS text and view extracted sections in an expandable layout.
+
+Paste in raw SRS text and view:
+
+-  Extracted sections in an expandable layout
+-  AI-powered analysis of each section for ambiguity, vagueness, and testability
+-  Clean, formatted output using a custom post-processor
+-  Skipped analysis for sections that are too short
 
 ---
 
@@ -93,6 +100,7 @@ Paste in raw SRS text and view extracted sections in an expandable layout.
 ```
 SpecSense/
 ├── app/                  # Core logic (parsers, AI tools)
+├── ui/                   # Code for ui creation
 ├── tests/                # Unit tests
 ├── .env.example          # Template for required secrets
 ├── .gitignore
