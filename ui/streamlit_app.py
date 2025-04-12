@@ -59,7 +59,8 @@ def main():
         # Loop over analyzed sections
         for title, result in analysis_results.items():
             st.markdown(f"---")  # Divider line
-            with st.expander(f"📘 {title}"):
+            section_title = f"{result['id']} {title}" if result.get("id") else title
+            with st.expander(section_title):
                 st.markdown("####  Raw Section Body")
                 st.markdown(f"```\n{result['body']}\n```")
 

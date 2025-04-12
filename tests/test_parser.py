@@ -53,14 +53,17 @@ User: a person using the system.
 """
     expected = [
         {
+            "id": None,
             "title": "Introduction",
             "body": "This document describes the system."
         },
         {
+            "id": None,
             "title": "Requirements",
             "body": "The system shall allow users to log in."
         },
         {
+            "id": None,
             "title": "Glossary",
             "body": "User: a person using the system."
         }
@@ -78,10 +81,12 @@ Second line of same section.
 """
     expected = [
         {
+            "id": None,
             "title": "Introduction",
             "body": "Line one.\nLine two."
         },
         {
+            "id": None,
             "title": "Requirements",
             "body": "First requirement.\nSecond line of same section."
         }
@@ -96,10 +101,12 @@ Has content here.
 """
     expected = [
         {
+            "id": None,
             "title": "EmptySection",
             "body": ""
         },
         {
+            "id": None,
             "title": "NextSection",
             "body": "Has content here."
         }
@@ -122,11 +129,15 @@ Details of purpose go here.
 
 SYSTEM OVERVIEW
 This section is in all caps.
+
+5.2. Purpose
+Details of purpose go here.
 """
     expected = [
-        {"title": "Intro", "body": "This is the intro."},
-        {"title": "1. Purpose", "body": "Details of purpose go here."},
-        {"title": "SYSTEM OVERVIEW", "body": "This section is in all caps."}
+        {"id": None, "title": "Intro", "body": "This is the intro."},
+        {"id": "1", "title": "Purpose", "body": "Details of purpose go here."},
+        {"id": None, "title": "SYSTEM OVERVIEW", "body": "This section is in all caps."},
+        {"id": "5.2", "title": "Purpose", "body": "Details of purpose go here."}
     ]
     assert parse_sections_with_bodies(text) == expected
 
@@ -141,8 +152,8 @@ This section defines system boundaries.
 """
 
     expected = [
-        {"title": "TEST", "body": "This is a test section."},
-        {"title": "SYSTEM OVERVIEW", "body": "This section defines system boundaries."}
+        {"id": None,"title": "TEST", "body": "This is a test section."},
+        {"id": None,"title": "SYSTEM OVERVIEW", "body": "This section defines system boundaries."}
     ]
 
     result = parse_sections_with_bodies(text)

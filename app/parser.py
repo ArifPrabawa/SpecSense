@@ -21,6 +21,16 @@ def _is_all_caps_header(line)-> bool:
     """Returns True if the line is in ALL CAPS and reasonably short (likely a section)."""
     return re.match(r'^[A-Z\s]+$', line) is not None and len(line.split()) <= 5
 
+def _extract_id_and_title(line: str) -> tuple[str | None, str]:
+    """
+    Extracts a section ID (like '5.1.9') and title from a header line.
+    If no ID is found, returns (None, line).
+    """
+    match = re.match(r'^(\d+(?:\.\d+)*)(?:[.)]?)\s+(.*)', line)
+    if match:
+        return match.group(1), match.group(2).strip()
+    return None, line.strip()
+
 def extract_sections(text):
     """
     Extracts section titles from unstructured SRS-style text.
@@ -83,9 +93,9 @@ def parse_sections_with_bodies(text):
         )
         # Check for any valid section header
         if _is_markdown_header(line):
-            section_title = line[2:].strip()
+            section_id, section_title = _extract_id_and_title(line[2:].strip())
         elif _is_numbered_header(line) or is_isolated_all_caps:
-            section_title = line.strip()
+            section_id, section_title = _extract_id_and_title(line.strip())
         else:
             # Accumulate body lines under current section
             if current_section:
@@ -95,18 +105,23 @@ def parse_sections_with_bodies(text):
         # Save previous section before starting a new one
         if current_section or current_body:
             sections.append({
-                "title": current_section,
+                "id": current_section["id"] if current_section else None,
+                "title": current_section["title"] if current_section else "",
                 "body": "\n".join(current_body).strip()
             })
             current_body = []
 
-        current_section = section_title
+        current_section = {
+            "id": section_id,
+            "title": section_title
+        }
 
 
     # Add the final section after loop ends
     if current_section:
         sections.append({
-            "title": current_section,
+            "id": current_section["id"],
+            "title": current_section["title"],
             "body": "\n".join(current_body).strip()
         })
 

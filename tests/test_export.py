@@ -6,6 +6,8 @@ def test_format_analysis_as_markdown_output():
     # Minimal mock data
     mock_data = {
         "5.1 Auto Log-Off": {
+            "id": "5.1",
+            "title": "Auto Log-Off",
             "body": "The system shall log off after 10 minutes.",
             "analysis": "This is a time-based session control requirement.",
             "tests": "- Verify auto log-off after 10 min\n- Check session is cleared"
@@ -26,11 +28,15 @@ def test_format_analysis_as_markdown_output():
 def test_format_analysis_as_markdown_multiple_sections():
     sample = {
         "5.1 Auto Log-Off": {
+            "id": "5.1",
+            "title": "Auto Log-Off",
             "body": "Logs out after 10 minutes.",
             "analysis": "Covers session timeout behavior.",
             "tests": "- Trigger inactivity\n- Confirm logout"
         },
         "5.2 Password Policy": {
+            "id": "5.2",
+            "title": "Password Policy",
             "body": "Passwords must be at least 8 characters.",
             "analysis": "Requirement enforces minimal complexity.",
             "tests": "- Try 7-char password\n- Try 8-char password"
@@ -54,6 +60,8 @@ def test_format_analysis_as_markdown_multiple_sections():
 def test_format_analysis_handles_empty_fields():
     sample = {
         "5.3 Incomplete": {
+            "id": "5.3",
+            "title": "Incomplete",
             "body": "Some requirement text.",
             "analysis": "",
             "tests": ""
