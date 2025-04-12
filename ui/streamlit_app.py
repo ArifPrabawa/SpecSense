@@ -43,6 +43,8 @@ def main():
             formatted = format_llm_response(analysis)
             test_suggestions = suggest_tests(body)
             analysis_results[section["title"]] = {
+                "id": section.get("id"),  
+                "title": section["title"],
                 "body": body,
                 "analysis": formatted,
                 "raw": analysis,

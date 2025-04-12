@@ -9,7 +9,9 @@ def format_analysis_as_markdown(results: dict) -> str:
 
     # Loop through each section and format its content
     for title, data in results.items():
-        display_title = f"{data['id']} {data['title']}" if data['id'] else data['title']
+        id_ = data.get("id")
+        title = data.get("title", "")
+        display_title = f"{id_} {title}" if id_ else title
         output.append(f"## {display_title}\n")
         output.append("### Raw Requirement\n")
         output.append(f"```\n{data['body']}\n```\n")
