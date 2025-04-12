@@ -42,30 +42,22 @@ def analyze_requirement(text: str) -> str:
     except Exception as e:
         return f"OpenAI error: {str(e)}"
 
-def format_llm_response(text: str) -> str:
+def suggest_tests(section_text: str) -> str:
     """
-    Cleans and formats raw LLM output to ensure it's readable in Markdown or plain text.
-    Removes duplicate lines, standardizes section headers, and formats bullets.
+    Calls the LLM to suggest test ideas for a given requirement section.
     """
-    lines = text.strip().splitlines()
-    cleaned = []
-    seen = set()
+    prompt = (
+        "Based on the following software requirement, suggest test cases. "
+        "Be concise. Use bullet points.\n\n"
+        f"Requirement:\n{section_text}"
+    )
 
-    for line in lines:
-        line = line.strip()
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.2,
+        max_tokens=300,
+    )
 
-        if not line or line in seen:
-            continue  # skip empty or duplicate lines
-        seen.add(line)
+    return response.choices[0].message.content.strip()
 
-        # Remove all bolding asterisks safely (beginning or inline)
-        line = re.sub(r"\*{2,}", "", line)
-
-        # Match common section header format like "- Ambiguity:"
-        if line.startswith("- ") and line.endswith(":") and len(line) < 30:
-            label = line.lstrip("- ").rstrip(":").strip()
-            cleaned.append(f"\n**{label}:**")
-        else:
-            cleaned.append(line)
-
-    return "\n".join(cleaned).strip()
