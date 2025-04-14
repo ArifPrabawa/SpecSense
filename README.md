@@ -12,9 +12,10 @@ Built by a systems/test engineer rebuilding automation and development capabilit
 - [x] Extract section headers from raw SRS documents (Markdown, Numbered, ALL CAPS)
 - [x] Return structured section data with titles and body content
 - [x] Minimal Streamlit-based UI for document input and parsing
-+ [x] Identify ambiguity or missing test coverage (via OpenAI, in UI) 
-- [ ] Suggest tests based on requirement language  
-- [ ] Optional Flask-based UI or API  
+- [x] Identify ambiguity or missing test coverage (via OpenAI, in UI) 
+- [x] Suggest tests based on requirement language  
+- [x] Handle bad input, missing API key, and malformed LLM responses
+- [ ] Optional Flask-based UI or API   
 
 ---
 
@@ -37,6 +38,13 @@ pip install -r requirements.txt
 pytest
 ```
 
+Tests cover:
+- Parsing logic
+- Export formatting
+- OpenAI integration (mocked)
+- Failure cases (bad input, no API, malformed responses)
+
+Currently: 25+ unit tests
 ---
 
 ## Environment Variables
