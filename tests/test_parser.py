@@ -1,46 +1,62 @@
-from app.parser import extract_sections, _is_all_caps_header, _is_markdown_header, _is_numbered_header
+from app.parser import extract_sections, _is_all_caps_header, _is_markdown_header, _is_numbered_header, parse_sections_with_bodies
 
+
+#Test basic markdown headers are correctly extracted
 def test_extract_sections_simple():
     sample_text = "# Introduction\nSome intro text.\n\n# Requirements\nContent here."
     expected = ["Introduction", "Requirements"]
     assert extract_sections(sample_text) == expected
 
+
+#Test extraction of numbered headers (e.g., 1., 1.1, 2.)
 def test_extract_numbered_sections():
     text = "1. Introduction\nDetails.\n\n1.1 Scope\nDetails.\n\n2. Requirements\nMore details."
     expected = ["1. Introduction", "1.1 Scope", "2. Requirements"]
     assert extract_sections(text) == expected
 
+
+#Test that body text not acting as a header is ignored
 def test_ignores_non_headers():
     text = "Some random text.\n# Functional Requirements\nDetails\nJust more text\n# Glossary\nTerms"
     expected = ["Functional Requirements", "Glossary"]
     assert extract_sections(text) == expected
 
+
+#Test detection of ALL CAPS headers as section titles
 def test_all_caps_headers():
     text = "INTRODUCTION\n\nSome content.\n\nREQUIREMENTS\nContent continues."
     expected = ["INTRODUCTION", "REQUIREMENTS"]
     assert extract_sections(text) == expected
 
+
+#Test that empty input returns an empty list
 def test_empty_input():
     text = ""
     expected = []
     assert extract_sections(text) == expected
 
+
+#Test detection logic for markdown-style headers
 def test_is_markdown_header():
     assert _is_markdown_header("# Section")
     assert not _is_markdown_header("Section")
 
+
+#Test detection logic for numbered-style headers
 def test_is_numbered_header():
     assert _is_numbered_header("1. Introduction")
     assert _is_numbered_header("1.2.3 Overview")
     assert not _is_numbered_header("Version 1.3 applies")
 
+
+#Test detection logic for all-caps-style headers
 def test_is_all_caps_header():
     assert _is_all_caps_header("SYSTEM OVERVIEW")
     assert not _is_all_caps_header("Overview")
     assert not _is_all_caps_header("N/A")
 
-from app.parser import parse_sections_with_bodies
 
+#Test full section parsing with markdown headers and body content
 def test_parse_sections_with_bodies():
     text = """# Introduction
 This document describes the system.
@@ -70,6 +86,8 @@ User: a person using the system.
     ]
     assert parse_sections_with_bodies(text) == expected
 
+
+#Test multiline bodies are preserved under a single section
 def test_multiline_bodies():
     text = """# Introduction
 Line one.
@@ -93,6 +111,8 @@ Second line of same section.
     ]
     assert parse_sections_with_bodies(text) == expected
     
+    
+#Test behavior when a header has no body content
 def test_empty_section_body():
     text = """# EmptySection
 
@@ -113,6 +133,8 @@ Has content here.
     ]
     assert parse_sections_with_bodies(text) == expected
 
+
+#Test parsing returns empty list when no valid headers exist
 def test_no_headers_returns_empty_list():
     text = """This document lacks headers.
 Just some raw content.
@@ -120,6 +142,8 @@ Just some raw content.
     expected = []
     assert parse_sections_with_bodies(text) == expected
 
+
+#Test mixed header formats are parsed with correct IDs and bodies
 def test_parse_mixed_header_formats():
     text = """# Intro
 This is the intro.
@@ -141,6 +165,8 @@ Details of purpose go here.
     ]
     assert parse_sections_with_bodies(text) == expected
 
+
+#Test all-caps headers are recognized and associated with their bodies
 def test_all_caps_header_detection():
     text = """Intro paragraph.
 

@@ -10,6 +10,7 @@ from app.parser import parse_sections_with_bodies
 from app.formatter import format_llm_response
 from app.llm import analyze_requirement, suggest_tests
 from app.export import format_analysis_as_markdown
+from app.file_reader import read_uploaded_file
 
 def main():
     """Renders the Streamlit UI and handles user interaction."""
@@ -17,31 +18,43 @@ def main():
     # Title and instructions at top of app
     st.title(" SpecSense – SRS Section Analyzer")
     st.markdown(
-        "Use this tool to extract structured sections from Software Requirements Specification (SRS) documents. "
-        "Paste raw text below and hit **Parse Sections** to view the breakdown."
+        "_Upload a file or paste text below. If both are provided, the uploaded file will be used._"
     )
 
+    
+    # Upload option first
+    uploaded_file = st.file_uploader("Upload a .txt or .docx SRS file", type=["txt", "docx"])
+    document_text = read_uploaded_file(uploaded_file)
 
-    # Placeholder input field
-    user_input = st.text_area("SRS Document Text", height=300)
+    # Paste fallback only if no file uploaded
+    if document_text is None:
+        document_text = st.text_area("SRS Document Text", height=300)
 
     # Run parser + analysis on button click
     if st.button("Analyze"):
-        if not user_input.strip():
-            st.warning("Please paste some SRS content before parsing.")
+        if not document_text or not document_text.strip():
+            st.warning("Please provide SRS content either via upload or paste.")
             return
 
-         # Step 1: Parse SRS into sections (headers + body content)
-        results = parse_sections_with_bodies(user_input)
+        # Step 1: Parse SRS into sections (headers + body content)
+        results = parse_sections_with_bodies(document_text)
         st.success(f"Found {len(results)} sections.")
         
         # Step 2: Analyze each section via LLM and format results
         analysis_results = {}
         for section in results:
             body = section["body"]
+            
+            # Run analysis first
             analysis = analyze_requirement(body)
             formatted = format_llm_response(analysis)
-            test_suggestions = suggest_tests(body)
+            
+            # Only call suggest_tests if analysis was actually performed
+            if "Skipped analysis" in analysis:
+                test_suggestions = "⚠️ Skipped: section too short or empty."
+            else:
+                test_suggestions = suggest_tests(body)
+                
             analysis_results[section["title"]] = {
                 "id": section.get("id"),  
                 "title": section["title"],

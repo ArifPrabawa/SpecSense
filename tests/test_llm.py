@@ -24,7 +24,7 @@ def test_analyze_requirement_skips_empty_input():
     
 
 
-#test that suggest_tests returns the expected LLM response when mocked
+#Test that suggest_tests returns the expected LLM response when mocked
 def test_suggest_tests_returns_mocked_llm_response():
     mock_response = "- Test user logout after 10 minutes"
 
@@ -37,7 +37,7 @@ def test_suggest_tests_returns_mocked_llm_response():
         assert result == mock_response
 
 
-#test for missing API key
+#Test for missing API key
 def test_missing_api_key_raises_error(monkeypatch):
     """
     Should raise a ValueError if OPENAI_API_KEY is not set.
@@ -49,7 +49,7 @@ def test_missing_api_key_raises_error(monkeypatch):
         analyze_requirement("This is a test requirement that should be analyzed.")
         
 
-#test handling of OpenAI API errors in analyze_requirement
+#Test handling of OpenAI API errors in analyze_requirement
 def test_analyze_requirement_handles_openai_failure():
     """
     Simulates an OpenAI API failure and verifies fallback behavior.
@@ -60,7 +60,7 @@ def test_analyze_requirement_handles_openai_failure():
         assert result.startswith("OpenAI error: Mock API failure")
 
 
-#test handling of OpenAI API errors in suggest_tests
+#Test handling of OpenAI API errors in suggest_tests
 def test_suggest_tests_handles_openai_failure():
     """
     Simulates an OpenAI API failure and verifies fallback behavior.
@@ -71,7 +71,7 @@ def test_suggest_tests_handles_openai_failure():
         assert result.startswith("OpenAI error: Mock API failure")
    
         
-# Handles case where OpenAI response is missing expected fields in analyze_requirement
+#Handles case where OpenAI response is missing expected fields in analyze_requirement
 def test_analyze_requirement_handles_malformed_response():
     """
     Simulates a malformed OpenAI response (e.g., missing choices/message).
@@ -85,7 +85,7 @@ def test_analyze_requirement_handles_malformed_response():
         assert result.startswith("⚠️ Unexpected LLM response format")
         
         
-# Handles case where OpenAI response is missing expected fields in suggest_tests
+#Handles case where OpenAI response is missing expected fields in suggest_tests
 def test_suggest_tests_handles_malformed_response():
     """
     Simulates a malformed OpenAI response (e.g., missing choices/message).
