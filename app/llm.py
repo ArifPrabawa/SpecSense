@@ -13,9 +13,16 @@ def analyze_requirement(text: str) -> str:
     """
     Sends a requirement string to the OpenAI API and returns its analysis.
     """
+    # Check for missing API key
+    if not os.getenv("OPENAI_API_KEY"):
+        raise ValueError("OpenAI API key not set in environment variables.")
+    
+    # Skip empty input
     text = text.strip()
     if not text or len(text.strip()) < 20:
         return "Skipped analysis — section too short or empty."
+    
+    # LLM call to generate analysis
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -37,7 +44,10 @@ def analyze_requirement(text: str) -> str:
             max_tokens=300
         )   
 
-        return response.choices[0].message.content.strip()
+        try:
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            return f"⚠️ Unexpected LLM response format: {str(e)}"
     
     except Exception as e:
         return f"OpenAI error: {str(e)}"
@@ -52,12 +62,19 @@ def suggest_tests(section_text: str) -> str:
         f"Requirement:\n{section_text}"
     )
 
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.2,
-        max_tokens=300,
-    )
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+            max_tokens=300,
+        )
 
-    return response.choices[0].message.content.strip()
+        try:
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            return f"⚠️ Unexpected LLM response format: {str(e)}"
+    
+    except Exception as e:
+        return f"OpenAI error: {str(e)}"
 
