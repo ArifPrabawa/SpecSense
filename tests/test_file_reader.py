@@ -1,5 +1,6 @@
 from io import BytesIO
-from app.file_reader import read_uploaded_file
+from app.file_reader import read_uploaded_file, _is_docx_toc_paragraph
+from types import SimpleNamespace
 from docx import Document
 
 #Test that simulates uploading a .txt file and verifies decoded output.
@@ -41,3 +42,11 @@ def test_read_uploaded_docx_file():
 
     result = read_uploaded_file(doc_io)
     assert "log off after 10 minutes" in result
+
+#Test docx TOC detection logic
+def test_is_docx_toc_paragraph_detection():
+    toc_mock = SimpleNamespace(style=SimpleNamespace(name="TOC 1"))
+    real_mock = SimpleNamespace(style=SimpleNamespace(name="Heading 1"))
+
+    assert _is_docx_toc_paragraph(toc_mock) is True
+    assert _is_docx_toc_paragraph(real_mock) is False
