@@ -8,59 +8,14 @@ Public functions:
 
 import re
 
-
-def _is_markdown_header(line)-> bool:
-    """Returns True if the line is a Markdown-style header (e.g., '# Section')."""
-    return line.startswith("# ")
-
-def _is_numbered_header(line)-> bool:
-    """Returns True if the line starts with a numbered pattern (e.g., '1.', '2.1.3')."""
-    return re.match(r'^\d+(\.\d+)*[.)]?\s+', line)
-
-def _is_all_caps_header(line)-> bool:
-    """Returns True if the line is in ALL CAPS and reasonably short (likely a section)."""
-    return re.match(r'^[A-Z\s]+$', line) is not None and len(line.split()) <= 5
-
-def _extract_id_and_title(line: str) -> tuple[str | None, str]:
-    """
-    Extracts a section ID (like '5.1.9') and title from a header line.
-    If no ID is found, returns (None, line).
-    """
-    match = re.match(r'^(\d+(?:\.\d+)*)(?:[.)]?)\s+(.*)', line)
-    if match:
-        return match.group(1), match.group(2).strip()
-    return None, line.strip()
-
-
-def _is_fallback_header(line: str) -> bool:
-    """
-    Detects informal fallback section headers based on formatting.
-    Matches short, title-case lines (1–4 words) like 'Scope' or 'System Overview',
-    typically found in unstructured or loosely formatted SRS files.
-
-    Args:
-        line (str): A single line of text from the input document.
-
-    Returns:
-        bool: True if the line looks like a fallback header, False otherwise.
-    """
-    words = line.strip().split()
-    if not (1 <= len(words) <= 4):
-        return False
-    if not line.strip().istitle():
-        return False
-    return True
-
-def _is_toc_line(line: str) -> bool:
-    """
-    Returns True if the line resembles a Table of Contents entry.
-    Matches patterns like '1. Introduction .......... 2'
-    """
-    line = line.strip()
-    if "..." in line or re.search(r"\.{4,}", line):  # 4+ dots
-        if re.search(r"\d+$", line):  # ends in a number
-            return True
-    return False
+from app.header_rules import (
+    is_markdown_header,
+    is_numbered_header,
+    is_all_caps_header,
+    is_fallback_header,
+    extract_id_and_title,
+    is_toc_line,
+)
 
 def extract_sections(text):
     """
@@ -77,18 +32,18 @@ def extract_sections(text):
         line = line.strip()
 
         # Markdown-style header
-        if _is_markdown_header(line):
+        if is_markdown_header(line):
             # Remove the "# " from the start
             sections.append(line[2:].strip())
             continue
 
         # Numbered section: 1. Title, 1.1 Subsection, etc.
-        if _is_numbered_header(line):
+        if is_numbered_header(line):
             sections.append(line.strip())
             continue
         
         # All-caps (at least 2 words, 5+ chars total)
-        if _is_all_caps_header(line):
+        if is_all_caps_header(line):
             sections.append(line.strip())
             continue
         
@@ -113,7 +68,7 @@ def parse_sections_with_bodies(text):
     for i, line in enumerate(lines):
         line = line.strip()
         
-        if i < 40 and _is_toc_line(line):
+        if i < 40 and is_toc_line(line):
             continue  # skip TOC-style line
         
         # Look at previous and next lines to confirm isolation
@@ -124,15 +79,15 @@ def parse_sections_with_bodies(text):
         
         # Only treat ALL CAPS as header if visually separated
         is_isolated_all_caps = (
-            _is_all_caps_header(line)
+            is_all_caps_header(line)
             and (prev_line == "" or next_line == "")
         )
         # Check for any valid section header
-        if _is_markdown_header(line):
-            section_id, section_title = _extract_id_and_title(line[2:].strip())
-        elif _is_numbered_header(line) or is_isolated_all_caps:
-            section_id, section_title = _extract_id_and_title(line.strip())
-        elif _is_fallback_header(line):
+        if is_markdown_header(line):
+            section_id, section_title = extract_id_and_title(line[2:].strip())
+        elif is_numbered_header(line) or is_isolated_all_caps:
+            section_id, section_title = extract_id_and_title(line.strip())
+        elif is_fallback_header(line):
             section_id, section_title = None, line.strip()
         else:
             # Accumulate body lines under current section

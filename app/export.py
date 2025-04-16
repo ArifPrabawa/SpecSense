@@ -1,28 +1,32 @@
-def format_analysis_as_markdown(results: dict) -> str:
+def format_analysis_as_markdown(analysis_results: dict) -> str:
     """
-    Converts the analyzed results into Markdown format for export.
+    Formats the full analysis result as Markdown.
+    Uses Markdown heading levels for clean export and structured viewing.
     """
-    from datetime import datetime
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+    md = "# SpecSense Analysis\n\n"
 
-    output = [f"# SpecSense Analysis\n\n_Exported {timestamp}_\n"]
+    for title, data in analysis_results.items():
+        display_title = f"{data['id']} {data['title']}" if data.get("id") else data["title"]
+        md += f"## {display_title}\n\n"
 
-    # Loop through each section and format its content
-    for title, data in results.items():
-        id_ = data.get("id")
-        title = data.get("title", "")
-        display_title = f"{id_} {title}" if id_ else title
-        output.append(f"## {display_title}\n")
-        output.append("### Raw Requirement\n")
-        output.append(f"```\n{data['body']}\n```\n")
+        # Body block
+        md += f"### Raw Section Body\n\n"
+        md += f"```\n{data.get('body', '').strip()}\n```\n\n"
 
-        output.append("### LLM Analysis\n")
-        output.append(f"```\n{data['analysis']}\n```\n")
+        # LLM analysis
+        md += f"### LLM Analysis\n\n"
+        if "Skipped" in data.get("raw", ""):
+            md += f"> ⚠️ {data.get('raw', 'Analysis skipped.')}\n\n"
+        else:
+            md += f"{data.get('analysis', '').strip()}\n\n"
 
-        output.append("### Suggested Test Cases\n")
-        output.append(f"```\n{data['tests']}\n```\n")
+        # Test suggestions
+        md += f"### Suggested Tests\n\n"
+        if "Skipped" in data.get("tests", ""):
+            md += f"> ⚠️ {data.get('tests', 'Tests skipped.')}\n\n"
+        else:
+            md += f"{data.get('tests', '').strip()}\n\n"
 
-        output.append("---\n")
+        md += "---\n\n"
 
-    return "\n".join(output)
-
+    return md.strip()

@@ -18,9 +18,9 @@ def test_format_analysis_as_markdown_output():
 
     assert "# SpecSense Analysis" in markdown
     assert "## 5.1 Auto Log-Off" in markdown
-    assert "### Raw Requirement" in markdown
+    assert "### Raw Section Body" in markdown
     assert "The system shall log off after 10 minutes." in markdown
-    assert "### Suggested Test Cases" in markdown
+    assert "### Suggested Tests" in markdown
     assert "- Verify auto log-off" in markdown
     assert "---" in markdown  # Divider line
 
@@ -73,5 +73,5 @@ def test_format_analysis_handles_empty_fields():
     assert "## 5.3 Incomplete" in markdown
     assert "Some requirement text." in markdown
     assert "### LLM Analysis" in markdown
-    assert "### Suggested Test Cases" in markdown
+    assert "### Suggested Tests" in markdown
     assert markdown.count("---") == 1

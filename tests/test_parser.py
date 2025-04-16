@@ -1,5 +1,6 @@
 import textwrap
-from app.parser import extract_sections, _is_all_caps_header, _is_markdown_header, _is_numbered_header, parse_sections_with_bodies
+from app.parser import extract_sections, parse_sections_with_bodies
+from app.header_rules import is_all_caps_header, is_markdown_header, is_numbered_header
 
 
 #Test basic markdown headers are correctly extracted
@@ -38,23 +39,23 @@ def test_empty_input():
 
 
 #Test detection logic for markdown-style headers
-def test_is_markdown_header():
-    assert _is_markdown_header("# Section")
-    assert not _is_markdown_header("Section")
+def testis_markdown_header():
+    assert is_markdown_header("# Section")
+    assert not is_markdown_header("Section")
 
 
 #Test detection logic for numbered-style headers
-def test_is_numbered_header():
-    assert _is_numbered_header("1. Introduction")
-    assert _is_numbered_header("1.2.3 Overview")
-    assert not _is_numbered_header("Version 1.3 applies")
+def testis_numbered_header():
+    assert is_numbered_header("1. Introduction")
+    assert is_numbered_header("1.2.3 Overview")
+    assert not is_numbered_header("Version 1.3 applies")
 
 
 #Test detection logic for all-caps-style headers
-def test_is_all_caps_header():
-    assert _is_all_caps_header("SYSTEM OVERVIEW")
-    assert not _is_all_caps_header("Overview")
-    assert not _is_all_caps_header("N/A")
+def testis_all_caps_header():
+    assert is_all_caps_header("SYSTEM OVERVIEW")
+    assert not is_all_caps_header("Overview")
+    assert not is_all_caps_header("N/A")
 
 
 #Test full section parsing with markdown headers and body content

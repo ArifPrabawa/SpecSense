@@ -24,3 +24,15 @@
 ### Notes
 - `.docx` TOC filtering leverages paragraph styles; documents without TOC styles are currently not filtered by content — fallback detection deferred
 - Optional enhancements like multiline header collapsing and smart line joining are scoped for later
+
+## [v0.5.0] - 2025-04-16
+
+### Added
+- `header_rules.py` module for modular header detection logic (moved from `parser.py`)
+- Markdown output now includes structured headings: `#`, `##`, `###`
+- Clean UI rendering component (`render_section_result()`) extracted to `ui/components.py`
+
+### Changed
+- `streamlit_app.py` refactored to separate UI layout and logic
+- Markdown output updated with clearer body/analysis/test sections
+- Test suite updated to match new Markdown structure and refactored imports
