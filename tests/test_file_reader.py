@@ -1,5 +1,6 @@
 from io import BytesIO
-from app.file_reader import read_uploaded_file, _is_docx_toc_paragraph
+from app.file_reader import read_uploaded_file 
+from app.header_rules import is_docx_toc_paragraph
 from types import SimpleNamespace
 from docx import Document
 
@@ -48,5 +49,5 @@ def test_is_docx_toc_paragraph_detection():
     toc_mock = SimpleNamespace(style=SimpleNamespace(name="TOC 1"))
     real_mock = SimpleNamespace(style=SimpleNamespace(name="Heading 1"))
 
-    assert _is_docx_toc_paragraph(toc_mock) is True
-    assert _is_docx_toc_paragraph(real_mock) is False
+    assert is_docx_toc_paragraph(toc_mock) is True
+    assert is_docx_toc_paragraph(real_mock) is False

@@ -53,3 +53,18 @@ def is_toc_line(line: str) -> bool:
         if re.search(r"\d+$", line):  # ends in a number
             return True
     return False
+
+def is_docx_toc_paragraph(para) -> bool:
+    """
+    Returns True if the .docx paragraph uses a style associated with a Table of Contents.
+    """
+    style_name = para.style.name.lower() if para.style else ""
+    return style_name.startswith("toc") or "toc" in style_name
+
+def clean_toc_line(line: str) -> str:
+    """
+    Cleans a TOC line by removing dotted leaders and trailing page numbers.
+    Example:
+        '1. Introduction .......... 2' → '1. Introduction'
+    """
+    return re.split(r'\.{3,}\s*\d*$', line.strip())[0].strip()

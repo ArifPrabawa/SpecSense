@@ -36,3 +36,18 @@
 - `streamlit_app.py` refactored to separate UI layout and logic
 - Markdown output updated with clearer body/analysis/test sections
 - Test suite updated to match new Markdown structure and refactored imports
+
+## [v0.6.0] - TOC Conformance Comparison
+
+### Added
+- `toc_extractor.py`: Functions to extract TOC-style lines from `.txt` and `.docx` inputs using shared detection logic.
+- `standard_toc.py`: Central definition of standard TOC structure for structural comparison.
+- `toc_comparator.py`: Logic to compare extracted TOC against standard structure with reporting of matched, missing, and extra sections.
+- Unit tests for all TOC extraction and comparison utilities.
+
+### Changed
+- Moved `is_docx_toc_paragraph()` from `file_reader.py` to `header_rules.py` for shared access across parser, extractor, and test logic.
+
+### Notes
+- All tests pass (including mocked `.docx` TOC tests for style matching).
+- Lays foundation for Day 17 structural conformance UI/export and future user-uploaded standard comparison.
