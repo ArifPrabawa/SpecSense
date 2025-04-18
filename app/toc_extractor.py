@@ -16,16 +16,21 @@ def extract_toc_lines_from_text(text: str) -> list[str]:
     return toc_lines
 
 
-def extract_toc_lines_from_docx(docx_path: str) -> list[str]:
+def extract_toc_lines_from_docx(docx_file) -> list[str]:
     """
-    Extracts TOC lines from a .docx file based on paragraph styles that match
-    known TOC indicators (e.g., 'TOC 1', 'toc heading').
+    Extracts TOC-style lines from a .docx file.
+    Uses paragraph styles (preferred), but falls back to text pattern detection
+    for documents where TOC styles are not preserved.
     """
-    doc = Document(docx_path)
+    doc = Document(docx_file)
     toc_lines = []
+
     for para in doc.paragraphs:
-        if is_docx_toc_paragraph(para):
-            cleaned = para.text.strip()
-            if cleaned:
-                toc_lines.append(cleaned)
+        text = para.text.strip()
+        if not text:
+            continue
+
+        if is_docx_toc_paragraph(para) or is_toc_line(text):
+            toc_lines.append(text)
+
     return toc_lines

@@ -67,4 +67,6 @@ def clean_toc_line(line: str) -> str:
     Example:
         '1. Introduction .......... 2' → '1. Introduction'
     """
-    return re.split(r'\.{3,}\s*\d*$', line.strip())[0].strip()
+    line = re.split(r'\.{3,}\s*\d*$', line.strip())[0].strip()
+    line = re.sub(r"(\d+\.\d+)\.\s+", r"\1 ", line)  # Normalize '1.2. Title' → '1.2 Title'
+    return line

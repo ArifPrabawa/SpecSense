@@ -12,6 +12,7 @@ from app.llm import analyze_requirement, suggest_tests
 from app.export import format_analysis_as_markdown
 from app.file_reader import read_uploaded_file
 from ui.components import render_section_result
+from app.structure_check import run_structure_check
 
 def main():
     """Renders the Streamlit UI and handles user interaction."""
@@ -25,6 +26,18 @@ def main():
     
     # Upload option first
     uploaded_file = st.file_uploader("Upload a .txt or .docx SRS file", type=["txt", "docx"])
+    if uploaded_file:
+        is_docx = uploaded_file.name.lower().endswith(".docx")
+
+    # Allow user to run a structural conformance check (TOC vs standard template)
+    # This is a shallow structure check, not content-based or semantic yet
+    if st.button("Run Structure Check"):
+        from app.structure_check import run_structure_check
+        # Dispatch to structure_check.py, which extracts TOC lines and compares to STANDARD_TOC
+        toc_result = run_structure_check(uploaded_file, is_docx)
+        display_structure_check_results(toc_result)
+        # Rewind the file stream so it can be re-used later by read_uploaded_file()
+        uploaded_file.seek(0)
     document_text = read_uploaded_file(uploaded_file)
 
     # Paste fallback only if no file uploaded
@@ -109,6 +122,38 @@ def main():
         
         # Visual end-of-analysis divider
         st.divider()
+
+
+def display_structure_check_results(result: dict):
+    """
+    Render the TOC comparison results in a collapsible UI format.
+    Sections are grouped as:
+      - matched (found in both doc and standard)
+      - missing (expected but not present)
+      - extra (present but not expected)
+    """
+    st.subheader("📋 TOC Conformance Result")
+
+    with st.expander("✅ Matched Sections"):
+        if result["matched"]:
+            for line in result["matched"]:
+                st.markdown(f"- {line}")
+        else:
+            st.info("No matching sections found.")
+
+    with st.expander("⚠️ Missing Sections"):
+        if result["missing"]:
+            for line in result["missing"]:
+                st.markdown(f"- {line}")
+        else:
+            st.success("No missing sections.")
+
+    with st.expander("❗ Extra Sections"):
+        if result["extra"]:
+            for line in result["extra"]:
+                st.markdown(f"- {line}")
+        else:
+            st.success("No extra sections found.")
 
 #execute main UX code
 if __name__ == "__main__":

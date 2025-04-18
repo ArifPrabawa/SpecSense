@@ -50,4 +50,18 @@
 
 ### Notes
 - All tests pass (including mocked `.docx` TOC tests for style matching).
-- Lays foundation for Day 17 structural conformance UI/export and future user-uploaded standard comparison.
+- Lays foundation for structural conformance UI/export and future user-uploaded standard comparison.
+
+## [v0.7.0] – TOC Conformance Check Added (Day 17)
+### Added
+- Structural conformance check: compare document TOC to `STANDARD_TOC`
+- `structure_check.py` orchestration module
+- `extract_toc_lines_from_docx()` supports both style and text-pattern detection
+- `clean_toc_line()` normalization: handles dotted numbering (e.g., `1.2. Scope`)
+- `test_structure_check.py` covering `.txt` and `.docx` logic
+- Streamlit UI section: "Run Structure Check" with matched/missing/extra display
+- `@pytest.mark.xfail` tests for LLM-based fuzzy matching (future feature placeholder)
+
+### Fixed
+- TOC parser now correctly detects malformed `.docx` TOC entries styled as `"Normal"`
+- TOC matching logic adjusted to avoid false negatives from formatting quirks
