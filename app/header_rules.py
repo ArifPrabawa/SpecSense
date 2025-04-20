@@ -7,7 +7,7 @@ def is_markdown_header(line)-> bool:
 
 def is_numbered_header(line)-> bool:
     """Returns True if the line starts with a numbered pattern (e.g., '1.', '2.1.3')."""
-    return re.match(r'^\d+(\.\d+)*[.)]?\s+', line)
+    return bool(re.match(r'^\d+(\.\d+)*[.)]?\s+', line))
 
 def is_all_caps_header(line)-> bool:
     """Returns True if the line is in ALL CAPS and reasonably short (likely a section)."""
