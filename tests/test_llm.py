@@ -122,13 +122,25 @@ def test_analyze_requirement_handles_openai_failure():
 
 
 # ✅ Test that compare_toc_sections_with_llm returns Markdown on normal fuzzy input
-def test_compare_toc_sections_with_llm_valid_input():
-    standard = ["Introduction", "Scope", "Functional Requirements"]
-    document = ["Intro", "System Scope", "Features"]
+@patch("app.llm.get_client")
+def test_compare_toc_sections_with_llm_valid_input(mock_get_client):
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock()]
+    mock_response.choices[0].message.content = (
+        "- Scope\n- Functional Requirements\n- Introduction"
+    )
 
-    result = compare_toc_sections_with_llm(standard, document)
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.return_value = mock_response
+    mock_get_client.return_value = mock_client
+
+    result = compare_toc_sections_with_llm(
+        ["Introduction", "Scope", "Functional Requirements"],
+        ["Intro", "System Scope", "Features"],
+    )
+
     assert isinstance(result, str)
-    assert "Scope" in result or "scope" in result or "Missing Sections" in result
+    assert "Scope" in result or "Missing Sections" in result
 
 
 # ✅ Test that compare_toc_sections_with_llm skips if any list is empty
