@@ -3,7 +3,6 @@ from docx import Document
 from app.header_rules import is_docx_toc_paragraph
 
 
-
 def read_uploaded_file(uploaded_file) -> Optional[str]:
     """
     Reads text from an uploaded Streamlit file (.txt or .docx).
@@ -22,9 +21,7 @@ def read_uploaded_file(uploaded_file) -> Optional[str]:
     elif file_type.endswith(".docx"):
         # Use python-docx to extract text from .docx paragraphs
         doc = Document(uploaded_file)
-        return "\n".join(
-            p.text for p in doc.paragraphs if not is_docx_toc_paragraph(p)
-        )
+        return "\n".join(p.text for p in doc.paragraphs if not is_docx_toc_paragraph(p))
 
     # Fallback for unsupported types
     return None

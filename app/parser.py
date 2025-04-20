@@ -17,6 +17,7 @@ from app.header_rules import (
     is_toc_line,
 )
 
+
 def extract_sections(text):
     """
     Extracts section titles from unstructured SRS-style text.
@@ -41,12 +42,12 @@ def extract_sections(text):
         if is_numbered_header(line):
             sections.append(line.strip())
             continue
-        
+
         # All-caps (at least 2 words, 5+ chars total)
         if is_all_caps_header(line):
             sections.append(line.strip())
             continue
-        
+
     return sections
 
 
@@ -67,20 +68,17 @@ def parse_sections_with_bodies(text):
     lines = text.splitlines()
     for i, line in enumerate(lines):
         line = line.strip()
-        
+
         if i < 40 and is_toc_line(line):
             continue  # skip TOC-style line
-        
+
         # Look at previous and next lines to confirm isolation
         prev_line = lines[i - 1].strip() if i > 0 else ""
         next_line = lines[i + 1].strip() if i + 1 < len(lines) else ""
-        
 
-        
         # Only treat ALL CAPS as header if visually separated
-        is_isolated_all_caps = (
-            is_all_caps_header(line)
-            and (prev_line == "" or next_line == "")
+        is_isolated_all_caps = is_all_caps_header(line) and (
+            prev_line == "" or next_line == ""
         )
         # Check for any valid section header
         if is_markdown_header(line):
@@ -97,25 +95,25 @@ def parse_sections_with_bodies(text):
 
         # Save previous section before starting a new one
         if current_section or current_body:
-            sections.append({
-                "id": current_section["id"] if current_section else None,
-                "title": current_section["title"] if current_section else "",
-                "body": "\n".join(current_body).strip()
-            })
+            sections.append(
+                {
+                    "id": current_section["id"] if current_section else None,
+                    "title": current_section["title"] if current_section else "",
+                    "body": "\n".join(current_body).strip(),
+                }
+            )
             current_body = []
 
-        current_section = {
-            "id": section_id,
-            "title": section_title
-        }
-
+        current_section = {"id": section_id, "title": section_title}
 
     # Add the final section after loop ends
     if current_section:
-        sections.append({
-            "id": current_section["id"],
-            "title": current_section["title"],
-            "body": "\n".join(current_body).strip()
-        })
+        sections.append(
+            {
+                "id": current_section["id"],
+                "title": current_section["title"],
+                "body": "\n".join(current_body).strip(),
+            }
+        )
 
     return sections

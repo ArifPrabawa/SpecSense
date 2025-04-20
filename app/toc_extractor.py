@@ -1,6 +1,7 @@
 from app.header_rules import is_toc_line, clean_toc_line, is_docx_toc_paragraph
 from docx import Document
 
+
 def extract_toc_lines_from_text(text: str) -> list[str]:
     """
     Extracts a list of TOC-style lines from plain .txt input using existing

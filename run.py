@@ -22,7 +22,7 @@ The system should be fast and user-friendly.
 
     for section in sections:
         print(f"== {section['title']} ==")
-        print(section['body'])
+        print(section["body"])
         print()
 
         print("-- LLM Analysis --")

@@ -1,5 +1,6 @@
 import re
 
+
 def format_llm_response(text: str) -> str:
     """
     Cleans and formats raw LLM output to ensure it's readable in Markdown or plain text.

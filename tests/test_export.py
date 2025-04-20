@@ -1,5 +1,6 @@
 from app.export import format_analysis_as_markdown
 
+
 # Test that format_analysis_as_markdown returns correctly structured Markdown
 # for a single analyzed section, including all required headers and content blocks.
 def test_format_analysis_as_markdown_output():
@@ -10,7 +11,7 @@ def test_format_analysis_as_markdown_output():
             "title": "Auto Log-Off",
             "body": "The system shall log off after 10 minutes.",
             "analysis": "This is a time-based session control requirement.",
-            "tests": "- Verify auto log-off after 10 min\n- Check session is cleared"
+            "tests": "- Verify auto log-off after 10 min\n- Check session is cleared",
         }
     }
 
@@ -24,6 +25,7 @@ def test_format_analysis_as_markdown_output():
     assert "- Verify auto log-off" in markdown
     assert "---" in markdown  # Divider line
 
+
 # Test that format_analysis_as_markdown works for multiple sections.
 def test_format_analysis_as_markdown_multiple_sections():
     sample = {
@@ -32,15 +34,15 @@ def test_format_analysis_as_markdown_multiple_sections():
             "title": "Auto Log-Off",
             "body": "Logs out after 10 minutes.",
             "analysis": "Covers session timeout behavior.",
-            "tests": "- Trigger inactivity\n- Confirm logout"
+            "tests": "- Trigger inactivity\n- Confirm logout",
         },
         "5.2 Password Policy": {
             "id": "5.2",
             "title": "Password Policy",
             "body": "Passwords must be at least 8 characters.",
             "analysis": "Requirement enforces minimal complexity.",
-            "tests": "- Try 7-char password\n- Try 8-char password"
-        }
+            "tests": "- Try 7-char password\n- Try 8-char password",
+        },
     }
 
     markdown = format_analysis_as_markdown(sample)
@@ -56,6 +58,7 @@ def test_format_analysis_as_markdown_multiple_sections():
     # Check both dividers are there (should be one per section)
     assert markdown.count("---") == 2
 
+
 # Test that format_analysis_as_markdown works with empty fields.
 def test_format_analysis_handles_empty_fields():
     sample = {
@@ -64,7 +67,7 @@ def test_format_analysis_handles_empty_fields():
             "title": "Incomplete",
             "body": "Some requirement text.",
             "analysis": "",
-            "tests": ""
+            "tests": "",
         }
     }
 

@@ -3,64 +3,65 @@ from app.parser import extract_sections, parse_sections_with_bodies
 from app.header_rules import is_all_caps_header, is_markdown_header, is_numbered_header
 
 
-#Test basic markdown headers are correctly extracted
+# Test basic markdown headers are correctly extracted
 def test_extract_sections_simple():
     sample_text = "# Introduction\nSome intro text.\n\n# Requirements\nContent here."
     expected = ["Introduction", "Requirements"]
     assert extract_sections(sample_text) == expected
 
 
-#Test extraction of numbered headers (e.g., 1., 1.1, 2.)
+# Test extraction of numbered headers (e.g., 1., 1.1, 2.)
 def test_extract_numbered_sections():
     text = "1. Introduction\nDetails.\n\n1.1 Scope\nDetails.\n\n2. Requirements\nMore details."
     expected = ["1. Introduction", "1.1 Scope", "2. Requirements"]
     assert extract_sections(text) == expected
 
 
-#Test that body text not acting as a header is ignored
+# Test that body text not acting as a header is ignored
 def test_ignores_non_headers():
     text = "Some random text.\n# Functional Requirements\nDetails\nJust more text\n# Glossary\nTerms"
     expected = ["Functional Requirements", "Glossary"]
     assert extract_sections(text) == expected
 
 
-#Test detection of ALL CAPS headers as section titles
+# Test detection of ALL CAPS headers as section titles
 def test_all_caps_headers():
     text = "INTRODUCTION\n\nSome content.\n\nREQUIREMENTS\nContent continues."
     expected = ["INTRODUCTION", "REQUIREMENTS"]
     assert extract_sections(text) == expected
 
 
-#Test that empty input returns an empty list
+# Test that empty input returns an empty list
 def test_empty_input():
     text = ""
     expected = []
     assert extract_sections(text) == expected
 
 
-#Test detection logic for markdown-style headers
+# Test detection logic for markdown-style headers
 def testis_markdown_header():
     assert is_markdown_header("# Section")
     assert not is_markdown_header("Section")
 
 
-#Test detection logic for numbered-style headers
+# Test detection logic for numbered-style headers
 def testis_numbered_header():
     assert is_numbered_header("1. Introduction")
     assert is_numbered_header("1.2.3 Overview")
     assert not is_numbered_header("Version 1.3 applies")
 
 
-#Test detection logic for all-caps-style headers
+# Test detection logic for all-caps-style headers
 def testis_all_caps_header():
     assert is_all_caps_header("SYSTEM OVERVIEW")
     assert not is_all_caps_header("Overview")
     assert not is_all_caps_header("N/A")
 
 
-#Test full section parsing with markdown headers and body content
+# Test full section parsing with markdown headers and body content
 def test_parse_sections_with_bodies():
-    text = textwrap.dedent("""# Introduction
+    text = textwrap.dedent(
+        """# Introduction
 This document describes the system.
 
 # Requirements
@@ -68,86 +69,78 @@ The system shall allow users to log in.
 
 # Glossary
 User: a person using the system.
-""")
+"""
+    )
     expected = [
         {
             "id": None,
             "title": "Introduction",
-            "body": "This document describes the system."
+            "body": "This document describes the system.",
         },
         {
             "id": None,
             "title": "Requirements",
-            "body": "The system shall allow users to log in."
+            "body": "The system shall allow users to log in.",
         },
-        {
-            "id": None,
-            "title": "Glossary",
-            "body": "User: a person using the system."
-        }
+        {"id": None, "title": "Glossary", "body": "User: a person using the system."},
     ]
     assert parse_sections_with_bodies(text) == expected
 
 
-#Test multiline bodies are preserved under a single section
+# Test multiline bodies are preserved under a single section
 def test_multiline_bodies():
-    text = textwrap.dedent("""# Introduction
+    text = textwrap.dedent(
+        """# Introduction
 Line one.
 Line two.
 
 # Requirements
 First requirement.
 Second line of same section.
-""")
+"""
+    )
     expected = [
-        {
-            "id": None,
-            "title": "Introduction",
-            "body": "Line one.\nLine two."
-        },
+        {"id": None, "title": "Introduction", "body": "Line one.\nLine two."},
         {
             "id": None,
             "title": "Requirements",
-            "body": "First requirement.\nSecond line of same section."
-        }
+            "body": "First requirement.\nSecond line of same section.",
+        },
     ]
     assert parse_sections_with_bodies(text) == expected
-    
-    
-#Test behavior when a header has no body content
+
+
+# Test behavior when a header has no body content
 def test_empty_section_body():
-    text = textwrap.dedent("""# EmptySection
+    text = textwrap.dedent(
+        """# EmptySection
 
 # NextSection
 Has content here.
-""")
+"""
+    )
     expected = [
-        {
-            "id": None,
-            "title": "EmptySection",
-            "body": ""
-        },
-        {
-            "id": None,
-            "title": "NextSection",
-            "body": "Has content here."
-        }
+        {"id": None, "title": "EmptySection", "body": ""},
+        {"id": None, "title": "NextSection", "body": "Has content here."},
     ]
     assert parse_sections_with_bodies(text) == expected
 
 
-#Test parsing returns empty list when no valid headers exist
+# Test parsing returns empty list when no valid headers exist
 def test_no_headers_returns_empty_list():
-    text = textwrap.dedent("""This document lacks headers.
+    text = textwrap.dedent(
+        """This document lacks headers.
 Just some raw content.
-""")
+"""
+    )
     expected = []
     assert parse_sections_with_bodies(text) == expected
 
 
-#Test mixed header formats are parsed with correct IDs and bodies
+# Test mixed header formats are parsed with correct IDs and bodies
 def test_parse_mixed_header_formats():
-    text = textwrap.dedent("""# Intro
+    text = textwrap.dedent(
+        """# Intro
 This is the intro.
 
 1. Purpose
@@ -158,40 +151,52 @@ This section is in all caps.
 
 5.2. Purpose
 Details of purpose go here.
-""")
+"""
+    )
     expected = [
         {"id": None, "title": "Intro", "body": "This is the intro."},
         {"id": "1", "title": "Purpose", "body": "Details of purpose go here."},
-        {"id": None, "title": "SYSTEM OVERVIEW", "body": "This section is in all caps."},
-        {"id": "5.2", "title": "Purpose", "body": "Details of purpose go here."}
+        {
+            "id": None,
+            "title": "SYSTEM OVERVIEW",
+            "body": "This section is in all caps.",
+        },
+        {"id": "5.2", "title": "Purpose", "body": "Details of purpose go here."},
     ]
     assert parse_sections_with_bodies(text) == expected
 
 
-#Test all-caps headers are recognized and associated with their bodies
+# Test all-caps headers are recognized and associated with their bodies
 def test_all_caps_header_detection():
-    text = textwrap.dedent("""Intro paragraph.
+    text = textwrap.dedent(
+        """Intro paragraph.
 
 TEST
 This is a test section.
 
 SYSTEM OVERVIEW
 This section defines system boundaries.
-""")
+"""
+    )
 
     expected = [
-        {"id": None,"title": "TEST", "body": "This is a test section."},
-        {"id": None,"title": "SYSTEM OVERVIEW", "body": "This section defines system boundaries."}
+        {"id": None, "title": "TEST", "body": "This is a test section."},
+        {
+            "id": None,
+            "title": "SYSTEM OVERVIEW",
+            "body": "This section defines system boundaries.",
+        },
     ]
 
     result = parse_sections_with_bodies(text)
     assert result == expected
-    
-    
-#Test the short title-case lines like 'Scope' or 'Purpose' fallback
+
+
+# Test the short title-case lines like 'Scope' or 'Purpose' fallback
 def test_fallback_headers_detected():
 
-    raw_text = textwrap.dedent("""\
+    raw_text = textwrap.dedent(
+        """\
     Purpose
     This document defines the project scope.
 
@@ -200,7 +205,8 @@ def test_fallback_headers_detected():
 
     System Overview
     Uses mobile, cloud, and Wi-Fi.
-    """)
+    """
+    )
 
     results = parse_sections_with_bodies(raw_text)
     titles = [section["title"] for section in results]
@@ -208,18 +214,20 @@ def test_fallback_headers_detected():
     assert "Purpose" in titles
     assert "Scope" in titles
     assert "System Overview" in titles
-    
-    
-#Test the removal of TOC style text in .txt files
+
+
+# Test the removal of TOC style text in .txt files
 def test_toc_lines_are_skipped():
-    text = textwrap.dedent("""\
+    text = textwrap.dedent(
+        """\
         1. Introduction .................... 1
         2. Scope ........................ 2
         3. Requirements ...................... 3
 
         # Introduction
         Actual body starts here.
-    """)
+    """
+    )
     results = parse_sections_with_bodies(text)
     titles = [section["title"] for section in results]
     assert "1. Introduction .................... 1" not in titles

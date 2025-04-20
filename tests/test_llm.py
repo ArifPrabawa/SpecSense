@@ -12,7 +12,9 @@ def test_analyze_requirement_skips_short_input():
 # ✅ Test that missing API key is reported as an OpenAI error
 def test_analyze_requirement_returns_error_on_missing_key(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    result = analyze_requirement("This requirement is long enough to trigger an LLM call.")
+    result = analyze_requirement(
+        "This requirement is long enough to trigger an LLM call."
+    )
     assert result.startswith("OpenAI error: OpenAI API key not set")
 
 
@@ -47,7 +49,9 @@ def test_analyze_requirement_handles_malformed_response():
 def test_suggest_tests_returns_mocked_response():
     mock_response = MagicMock()
     mock_response.choices = [MagicMock()]
-    mock_response.choices[0].message.content.strip.return_value = "- Suggested test case"
+    mock_response.choices[0].message.content.strip.return_value = (
+        "- Suggested test case"
+    )
 
     mock_client = MagicMock()
     mock_client.chat.completions.create.return_value = mock_response

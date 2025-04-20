@@ -1,5 +1,6 @@
 from app.toc_comparator import compare_toc
 
+
 # Test when actual TOC perfectly matches expected TOC
 def test_compare_toc_perfect_match():
     expected = ["1. Intro", "2. Scope", "3. References"]

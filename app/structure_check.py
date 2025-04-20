@@ -7,7 +7,7 @@ from app.header_rules import clean_toc_line
 def run_structure_check(uploaded_file, is_docx: bool) -> dict:
     """
     Orchestrates structure conformance check.
-    
+
     Args:
         file_text (str): Text content of the uploaded file.
         is_docx (bool): True if source is .docx, False if .txt.
@@ -25,7 +25,9 @@ def run_structure_check(uploaded_file, is_docx: bool) -> dict:
     return compare_toc(actual=toc_lines, expected=STANDARD_TOC)
 
 
-def compare_toc_to_parsed_sections(toc_lines: list[str], parsed_sections: list[dict]) -> dict:
+def compare_toc_to_parsed_sections(
+    toc_lines: list[str], parsed_sections: list[dict]
+) -> dict:
     """
     Compares TOC entries to parsed section titles.
     Returns matched titles, TOC lines missing from the body, and parsed titles missing from the TOC.
@@ -62,8 +64,9 @@ def compare_toc_to_parsed_sections(toc_lines: list[str], parsed_sections: list[d
     return {
         "matched": matched,
         "missing_from_doc": missing_from_doc,
-        "extra_in_doc": extra_in_doc
+        "extra_in_doc": extra_in_doc,
     }
+
 
 def get_section_key(section):
     """
@@ -73,7 +76,7 @@ def get_section_key(section):
     (e.g., 'Scope') to form '1.2 Scope'. If no ID is present, the title alone
     is used. The result is lowercased and stripped for comparison safety.
     """
-    
+
     if section.get("id"):
         return f"{section['id']} {section['title']}".strip().lower()
-    return section['title'].strip().lower()
+    return section["title"].strip().lower()

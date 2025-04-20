@@ -6,7 +6,6 @@ import tempfile
 import os
 
 
-
 # Ensures TOC entries in .txt format are correctly extracted and cleaned
 def test_extract_toc_lines_from_text():
     sample_text = """
@@ -18,11 +17,7 @@ def test_extract_toc_lines_from_text():
     This is the actual section.
     """
 
-    expected = [
-        "1. Introduction",
-        "1.1 Purpose",
-        "2. Scope"
-    ]
+    expected = ["1. Introduction", "1.1 Purpose", "2. Scope"]
 
     result = extract_toc_lines_from_text(sample_text)
     assert result == expected
@@ -33,7 +28,9 @@ def test_extract_toc_lines_from_docx():
     # Fake paragraphs with mock style names
     mock_paragraphs = [
         SimpleNamespace(text="1. Overview", style=SimpleNamespace(name="TOC 1")),
-        SimpleNamespace(text="2. System Description", style=SimpleNamespace(name="TOC 1")),
+        SimpleNamespace(
+            text="2. System Description", style=SimpleNamespace(name="TOC 1")
+        ),
         SimpleNamespace(text="3. Requirements", style=SimpleNamespace(name="TOC 1")),
         SimpleNamespace(text="Not a TOC", style=SimpleNamespace(name="Heading 1")),
     ]
@@ -43,8 +40,10 @@ def test_extract_toc_lines_from_docx():
 
     # Patch Document() to return our mock
     import app.toc_extractor as toc_module
+
     def fake_doc_loader(path: str):
         return mock_doc
+
     toc_module.Document = fake_doc_loader
 
     expected = ["1. Overview", "2. System Description", "3. Requirements"]

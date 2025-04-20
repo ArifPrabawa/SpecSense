@@ -1,9 +1,10 @@
 import streamlit as st
 
+
 def render_section_result(title: str, result: dict):
     """
     Renders a parsed section and its LLM analysis in an expandable Streamlit block.
-    
+
     Args:
         title (str): Section title (e.g., '5.1.2 Overview')
         result (dict): Output from parser + LLM, with keys:
@@ -26,7 +27,6 @@ def render_section_result(title: str, result: dict):
             st.info(result["raw"])
         else:
             st.markdown(result["analysis"])
-        
 
         st.markdown("#### Suggested Tests")
         if "Skipped analysis" in result["raw"]:

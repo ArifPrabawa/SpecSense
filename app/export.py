@@ -6,7 +6,9 @@ def format_analysis_as_markdown(analysis_results: dict) -> str:
     md = "# SpecSense Analysis\n\n"
 
     for title, data in analysis_results.items():
-        display_title = f"{data['id']} {data['title']}" if data.get("id") else data["title"]
+        display_title = (
+            f"{data['id']} {data['title']}" if data.get("id") else data["title"]
+        )
         md += f"## {display_title}\n\n"
 
         # Body block

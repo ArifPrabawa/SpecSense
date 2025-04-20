@@ -14,18 +14,20 @@ from app.file_reader import read_uploaded_file
 from ui.components import render_section_result
 from app.structure_check import run_structure_check
 
+
 def main():
     """Renders the Streamlit UI and handles user interaction."""
-    
+
     # Title and instructions at top of app
     st.title(" SpecSense – SRS Section Analyzer")
     st.markdown(
         "_Upload a file or paste text below. If both are provided, the uploaded file will be used._"
     )
 
-    
     # Upload option first
-    uploaded_file = st.file_uploader("Upload a .txt or .docx SRS file", type=["txt", "docx"])
+    uploaded_file = st.file_uploader(
+        "Upload a .txt or .docx SRS file", type=["txt", "docx"]
+    )
     if uploaded_file:
         is_docx = uploaded_file.name.lower().endswith(".docx")
 
@@ -33,6 +35,7 @@ def main():
     # This is a shallow structure check, not content-based or semantic yet
     if st.button("Run Structure Check"):
         from app.structure_check import run_structure_check
+
         # Dispatch to structure_check.py, which extracts TOC lines and compares to STANDARD_TOC
         toc_result = run_structure_check(uploaded_file, is_docx)
         display_structure_check_results(toc_result)
@@ -53,48 +56,48 @@ def main():
         # Step 1: Parse SRS into sections (headers + body content)
         results = parse_sections_with_bodies(document_text)
         st.success(f"Found {len(results)} sections.")
-        
+
         # Step 2: Analyze each section via LLM and format results
         analysis_results = {}
         for section in results:
             body = section["body"]
-            
+
             # Run analysis first
             analysis = analyze_requirement(body)
             formatted = format_llm_response(analysis)
-            
+
             # Only call suggest_tests if analysis was actually performed
             if "Skipped analysis" in analysis:
                 test_suggestions = "⚠️ Skipped: section too short or empty."
             else:
                 test_suggestions = suggest_tests(body)
-                
+
             analysis_results[section["title"]] = {
-                "id": section.get("id"),  
+                "id": section.get("id"),
                 "title": section["title"],
                 "body": body,
                 "analysis": formatted,
                 "raw": analysis,
-                "tests": test_suggestions
+                "tests": test_suggestions,
             }
-            
+
         # Optional: View raw analysis result dictionary
         with st.expander(" Debug: Raw Analysis Output"):
             st.json(analysis_results)
-            
-        
+
         # Step 3: Render each section + analysis
         st.markdown("###  Analyzed Sections")
-        
+
         # Loop over analyzed sections
         for title, result in analysis_results.items():
-            render_section_result(title, result )
-                    
+            render_section_result(title, result)
+
         # Summary teaser (still in main content flow)
         st.markdown("###  Summary (Coming Soon)")
-        st.info("We're working on a cross-section analysis view to summarize risks and themes.")
-        
-        
+        st.info(
+            "We're working on a cross-section analysis view to summarize risks and themes."
+        )
+
         # === Export Section ===
         st.markdown("### Download Analysis Output")
 
@@ -107,7 +110,7 @@ def main():
             label="Download as Markdown",
             data=markdown_output,
             file_name="specsense_output.md",
-            mime="text/markdown"
+            mime="text/markdown",
         )
 
         # JSON download button
@@ -115,11 +118,11 @@ def main():
             label="Download as JSON",
             data=json_output,
             file_name="specsense_output.json",
-            mime="application/json"
+            mime="application/json",
         )
-        
+
         st.markdown("---")
-        
+
         # Visual end-of-analysis divider
         st.divider()
 
@@ -155,6 +158,7 @@ def display_structure_check_results(result: dict):
         else:
             st.success("No extra sections found.")
 
-#execute main UX code
+
+# execute main UX code
 if __name__ == "__main__":
     main()
