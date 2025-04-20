@@ -81,3 +81,20 @@
 ### Notes
 - Matching logic is deterministic and robust; fuzzy matching will be added separately in `v0.10.0+`
 - README update deferred to v1.0 polish
+
+## [v0.9.0] – LLM Error Handling & Test Coverage Alignment
+
+### Added
+- Centralized `get_client()` logic for OpenAI API key management
+- Full test coverage for `analyze_requirement()` and `suggest_tests()` with correct mocking and input handling
+- Support for OpenAI failure fallback logic and malformed response detection
+
+### Fixed
+- Removed invalid `pytest.raises()` tests that conflicted with catch-all exception logic
+- Corrected monkeypatch behavior by moving `load_dotenv()` back to top of `llm.py`
+- CI environment now reflects correct API key behavior during tests
+
+### Known Issues
+- Assistant guidance during test implementation phase was inconsistent and caused unnecessary rework
+- Additional test validation should be applied in final polish phase to ensure return-based testing is consistent
+
