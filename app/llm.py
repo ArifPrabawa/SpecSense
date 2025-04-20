@@ -7,7 +7,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+def get_client():
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("OpenAI API key not set")
+    return OpenAI(api_key=api_key)
 
 def analyze_requirement(text: str) -> str:
     """
@@ -24,7 +28,7 @@ def analyze_requirement(text: str) -> str:
     
     # LLM call to generate analysis
     try:
-        response = client.chat.completions.create(
+        response = get_client().chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {
@@ -63,7 +67,7 @@ def suggest_tests(section_text: str) -> str:
     )
 
     try:
-        response = client.chat.completions.create(
+        response = get_client().chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
