@@ -98,3 +98,22 @@
 - Assistant guidance during test implementation phase was inconsistent and caused unnecessary rework
 - Additional test validation should be applied in final polish phase to ensure return-based testing is consistent
 
+## [v0.9.1] – Codebase Polish & Lint Compliance
+
+### Fixed
+- Removed all unused imports (`F401`) across app and test files
+- Replaced unnecessary f-strings missing placeholders (`F541`)
+- Fixed spacing/blank line issues flagged by `flake8` (`E302`, `E303`)
+- Split multi-import lines for clarity and `E401` compliance
+- Resolved `F811` redefinition warning in `streamlit_app.py`
+
+### Added
+- `.flake8` config file with project-wide linting rules:
+  - `max-line-length = 100`
+  - `ignore = E203, W503` for compatibility with `black`
+  - Excluded `.venv`, `__pycache__`, and build directories
+
+### Notes
+- All code now passes both `flake8` and `black`
+- CI and local lint behavior are now consistent and enforceable
+

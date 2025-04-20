@@ -1,4 +1,4 @@
-import pytest
+
 from app.formatter import format_llm_response
 
 

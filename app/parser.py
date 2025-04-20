@@ -6,7 +6,6 @@ Public functions:
 - parse_sections_with_bodies(text): returns list of dicts {title, body}
 """
 
-import re
 
 from app.header_rules import (
     is_markdown_header,

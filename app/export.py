@@ -12,18 +12,18 @@ def format_analysis_as_markdown(analysis_results: dict) -> str:
         md += f"## {display_title}\n\n"
 
         # Body block
-        md += f"### Raw Section Body\n\n"
+        md += "### Raw Section Body\n\n"
         md += f"```\n{data.get('body', '').strip()}\n```\n\n"
 
         # LLM analysis
-        md += f"### LLM Analysis\n\n"
+        md += "### LLM Analysis\n\n"
         if "Skipped" in data.get("raw", ""):
             md += f"> ⚠️ {data.get('raw', 'Analysis skipped.')}\n\n"
         else:
             md += f"{data.get('analysis', '').strip()}\n\n"
 
         # Test suggestions
-        md += f"### Suggested Tests\n\n"
+        md += "### Suggested Tests\n\n"
         if "Skipped" in data.get("tests", ""):
             md += f"> ⚠️ {data.get('tests', 'Tests skipped.')}\n\n"
         else:

@@ -1,9 +1,6 @@
 from app.toc_extractor import extract_toc_lines_from_text, extract_toc_lines_from_docx
 from app.header_rules import clean_toc_line, is_toc_line
 from types import SimpleNamespace
-from docx import Document
-import tempfile
-import os
 
 
 # Ensures TOC entries in .txt format are correctly extracted and cleaned

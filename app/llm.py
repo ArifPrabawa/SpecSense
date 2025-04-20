@@ -3,7 +3,7 @@ Handles communication with OpenAI's API for analyzing requirement clarity.
 """
 
 from openai import OpenAI
-import os, re
+import os
 from dotenv import load_dotenv
 
 load_dotenv()

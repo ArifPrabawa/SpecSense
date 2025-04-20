@@ -12,7 +12,6 @@ from app.llm import analyze_requirement, suggest_tests
 from app.export import format_analysis_as_markdown
 from app.file_reader import read_uploaded_file
 from ui.components import render_section_result
-from app.structure_check import run_structure_check
 
 
 def main():

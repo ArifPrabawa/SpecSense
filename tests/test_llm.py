@@ -1,5 +1,4 @@
 from unittest.mock import patch, MagicMock
-import pytest
 from app.llm import analyze_requirement, suggest_tests
 
 
