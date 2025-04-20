@@ -1,4 +1,3 @@
-
 from app.formatter import format_llm_response
 
 

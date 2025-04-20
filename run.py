@@ -3,7 +3,8 @@ Manual dev script to test parser and LLM integration.
 """
 
 from app.parser import parse_sections_with_bodies
-from app.llm import analyze_requirement, format_llm_response
+from app.llm import analyze_requirement
+from app.formatter import format_llm_response
 
 
 def main():
