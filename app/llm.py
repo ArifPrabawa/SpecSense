@@ -4,22 +4,22 @@ Handles communication with OpenAI's API for analyzing requirement clarity.
 from openai import OpenAI
 import os, re
 from dotenv import load_dotenv
-
 load_dotenv()
 
 def get_client():
+
+
     api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
+
+    if api_key is None or api_key.strip() == "":
         raise ValueError("OpenAI API key not set")
+     
     return OpenAI(api_key=api_key)
 
 def analyze_requirement(text: str) -> str:
     """
     Sends a requirement string to the OpenAI API and returns its analysis.
     """
-    # Check for missing API key
-    if not os.getenv("OPENAI_API_KEY"):
-        raise ValueError("OpenAI API key not set in environment variables.")
     
     # Skip empty input
     text = text.strip()
