@@ -5,6 +5,8 @@ from docx import Document
 import tempfile
 import os
 
+
+
 # Ensures TOC entries in .txt format are correctly extracted and cleaned
 def test_extract_toc_lines_from_text():
     sample_text = """
@@ -41,7 +43,9 @@ def test_extract_toc_lines_from_docx():
 
     # Patch Document() to return our mock
     import app.toc_extractor as toc_module
-    toc_module.Document = lambda path: mock_doc
+    def fake_doc_loader(path: str):
+        return mock_doc
+    toc_module.Document = fake_doc_loader
 
     expected = ["1. Overview", "2. System Description", "3. Requirements"]
     result = extract_toc_lines_from_docx("fake_path.docx")
