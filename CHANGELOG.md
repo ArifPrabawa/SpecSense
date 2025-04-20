@@ -98,7 +98,16 @@
 - Assistant guidance during test implementation phase was inconsistent and caused unnecessary rework
 - Additional test validation should be applied in final polish phase to ensure return-based testing is consistent
 
-## [v0.9.1] – Codebase Polish & Lint Compliance
+## [v0.9.1] – LLM TOC Comparison + Lint Compliance
+
+### Added
+- `compare_toc_sections_with_llm()` function in `llm.py` for fuzzy TOC-to-standard comparison using GPT-4
+- Full test suite for the new function, including:
+  - Valid input test
+  - Empty/malformed response handling
+  - `xfail` test for semantic equivalence
+- `use_llm` toggle in `compare_toc()` (`toc_comparator.py`) to enable LLM fallback without affecting strict comparison
+- Mocked test in `test_toc_comparator.py` to validate LLM integration
 
 ### Fixed
 - Removed all unused imports (`F401`) across app and test files
@@ -107,13 +116,13 @@
 - Split multi-import lines for clarity and `E401` compliance
 - Resolved `F811` redefinition warning in `streamlit_app.py`
 
-### Added
-- `.flake8` config file with project-wide linting rules:
+### Configuration
+- Added `.flake8` config file with project-wide linting rules:
   - `max-line-length = 100`
   - `ignore = E203, W503` for compatibility with `black`
   - Excluded `.venv`, `__pycache__`, and build directories
 
 ### Notes
-- All code now passes both `flake8` and `black`
+- LLM fuzzy TOC logic is complete and test-covered, but not yet surfaced in the UI
+- Codebase now passes both `flake8` and `black`
 - CI and local lint behavior are now consistent and enforceable
-

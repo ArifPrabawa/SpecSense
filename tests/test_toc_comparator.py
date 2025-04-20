@@ -1,4 +1,5 @@
 from app.toc_comparator import compare_toc
+from unittest.mock import patch
 
 
 # Test when actual TOC perfectly matches expected TOC
@@ -32,3 +33,17 @@ def test_compare_toc_with_extra_entries():
     assert result["matched"] == ["1. Intro", "2. Scope"]
     assert result["missing"] == []
     assert result["extra"] == ["4. Appendix"]
+
+
+# ✅ Test that compare_toc returns both strict and fuzzy results if use_llm is enabled
+@patch("app.llm.compare_toc_sections_with_llm", return_value="*Mocked fuzzy result*")
+def test_compare_toc_with_llm_enabled(mock_llm):
+    standard = ["Introduction", "Scope", "System Overview"]
+    document = ["Intro", "System Scope", "Features"]
+
+    result = compare_toc(document, standard, use_llm=True)
+
+    assert "strict_comparison" in result
+    assert "llm_fuzzy_comparison" in result
+    assert isinstance(result["llm_fuzzy_comparison"], str)
+    assert result["llm_fuzzy_comparison"] == "*Mocked fuzzy result*"
