@@ -4,7 +4,7 @@ from app.toc_comparator import compare_toc
 from app.header_rules import clean_toc_line
 
 
-def run_structure_check(uploaded_file, is_docx: bool) -> dict:
+def run_structure_check(uploaded_file, is_docx: bool, use_llm=False) -> dict:
     """
     Orchestrates structure conformance check.
 
@@ -22,7 +22,7 @@ def run_structure_check(uploaded_file, is_docx: bool) -> dict:
         text = uploaded_file.read().decode("utf-8")
         toc_lines = extract_toc_lines_from_text(text)
 
-    return compare_toc(actual=toc_lines, expected=STANDARD_TOC)
+    return compare_toc(actual=toc_lines, expected=STANDARD_TOC, use_llm=use_llm)
 
 
 def compare_toc_to_parsed_sections(

@@ -126,3 +126,20 @@
 - LLM fuzzy TOC logic is complete and test-covered, but not yet surfaced in the UI
 - Codebase now passes both `flake8` and `black`
 - CI and local lint behavior are now consistent and enforceable
+
+## [v0.10.0] – LLM Fuzzy TOC Comparison (UI Integration)
+
+### Added
+- Streamlit sidebar checkbox to enable **LLM fuzzy TOC comparison**
+- `use_llm` toggle passed from UI → `structure_check.py` → `compare_toc()`
+- Support for optional fuzzy match results from GPT-4 alongside strict structure check
+- New expandable section in UI: **"🧠 LLM Fuzzy Match Results"**, rendered using Markdown
+- Dynamic fallback handling: strict vs. fuzzy results display correctly based on toggle
+
+### Fixed
+- `display_structure_check_results()` updated to support both old and new result formats (with or without `strict_comparison`)
+- Eliminated crash when LLM output structure differed from default TOC comparison return
+
+### Notes
+- This completes full UI surfacing of the LLM fuzzy comparison logic implemented in `v0.9.1`
+- First version where users can visibly benefit from AI-enhanced structural analysis

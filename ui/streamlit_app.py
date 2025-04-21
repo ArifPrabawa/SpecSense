@@ -23,6 +23,15 @@ def main():
         "_Upload a file or paste text below. If both are provided, the uploaded file will be used._"
     )
 
+    # Button to enable the TOC comparis
+    with st.sidebar:
+        st.header("Settings")
+        use_llm_fuzzy = st.checkbox(
+            " Enable LLM fuzzy TOC comparison",
+            value=False,
+            help="Uses GPT-4 to identify approximate matches between your document's TOC and a known standard. May be slower.",
+        )
+
     # Upload option first
     uploaded_file = st.file_uploader(
         "Upload a .txt or .docx SRS file", type=["txt", "docx"]
@@ -36,7 +45,7 @@ def main():
         from app.structure_check import run_structure_check
 
         # Dispatch to structure_check.py, which extracts TOC lines and compares to STANDARD_TOC
-        toc_result = run_structure_check(uploaded_file, is_docx)
+        toc_result = run_structure_check(uploaded_file, is_docx, use_llm=use_llm_fuzzy)
         display_structure_check_results(toc_result)
         # Rewind the file stream so it can be re-used later by read_uploaded_file()
         uploaded_file.seek(0)
@@ -135,27 +144,35 @@ def display_structure_check_results(result: dict):
       - extra (present but not expected)
     """
     st.subheader("📋 TOC Conformance Result")
+    if "strict_comparison" in result:
+        strict_result = result["strict_comparison"]
+    else:
+        strict_result = result
 
     with st.expander("✅ Matched Sections"):
-        if result["matched"]:
-            for line in result["matched"]:
+        if strict_result["matched"]:
+            for line in strict_result["matched"]:
                 st.markdown(f"- {line}")
         else:
             st.info("No matching sections found.")
 
     with st.expander("⚠️ Missing Sections"):
-        if result["missing"]:
-            for line in result["missing"]:
+        if strict_result["missing"]:
+            for line in strict_result["missing"]:
                 st.markdown(f"- {line}")
         else:
             st.success("No missing sections.")
 
     with st.expander("❗ Extra Sections"):
-        if result["extra"]:
-            for line in result["extra"]:
+        if strict_result["extra"]:
+            for line in strict_result["extra"]:
                 st.markdown(f"- {line}")
         else:
             st.success("No extra sections found.")
+
+    if "llm_fuzzy_comparison" in result:
+        with st.expander("🧠 LLM Fuzzy Match Results"):
+            st.markdown(result["llm_fuzzy_comparison"])
 
 
 # execute main UX code
