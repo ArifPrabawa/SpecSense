@@ -41,9 +41,26 @@ def test_compare_toc_with_llm_enabled(mock_llm):
     standard = ["Introduction", "Scope", "System Overview"]
     document = ["Intro", "System Scope", "Features"]
 
+    # Call the compare_toc function with use_llm enabled
     result = compare_toc(document, standard, use_llm=True)
 
+    # Assert that both strict and fuzzy results are returned
     assert "strict_comparison" in result
     assert "llm_fuzzy_comparison" in result
     assert isinstance(result["llm_fuzzy_comparison"], str)
     assert result["llm_fuzzy_comparison"] == "*Mocked fuzzy result*"
+
+    # Assert that strict_comparison is a dict
+    assert isinstance(result["strict_comparison"], dict)
+    assert "extra" in result["strict_comparison"]
+    assert "matched" in result["strict_comparison"]
+    assert "missing" in result["strict_comparison"]
+
+    # You can further assert if the content matches expectations
+    assert result["strict_comparison"]["matched"] == []
+    assert result["strict_comparison"]["missing"] == [
+        "Introduction",
+        "Scope",
+        "System Overview",
+    ]
+    assert result["strict_comparison"]["extra"] == ["Intro", "System Scope", "Features"]
