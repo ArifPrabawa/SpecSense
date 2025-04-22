@@ -143,3 +143,15 @@
 ### Notes
 - This completes full UI surfacing of the LLM fuzzy comparison logic implemented in `v0.9.1`
 - First version where users can visibly benefit from AI-enhanced structural analysis
+
+## [v0.11.0] – Traceability Export & Inline Requirement ID Detection
+
+### Added
+- Implemented inline requirement ID detection for sections.
+- Added traceability export functionality (JSON/CSV) based on parsed SRS sections.
+- Integrated a "Generate Traceability Export" button to Streamlit UI, enabling traceability downloads.
+- Session state used to preserve parsed sections and analysis results across reruns.
+- Tests for `build_traceability_index()`, `export_traceability_as_json()`, and `export_traceability_as_csv()` added and verified.
+
+### Notes
+- The summary section for cross-section analysis remains a future task.

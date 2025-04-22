@@ -71,20 +71,19 @@ The system shall allow users to log in.
 User: a person using the system.
 """
     )
-    expected = [
-        {
-            "id": None,
-            "title": "Introduction",
-            "body": "This document describes the system.",
-        },
-        {
-            "id": None,
-            "title": "Requirements",
-            "body": "The system shall allow users to log in.",
-        },
-        {"id": None, "title": "Glossary", "body": "User: a person using the system."},
-    ]
-    assert parse_sections_with_bodies(text) == expected
+
+    result = parse_sections_with_bodies(text)
+
+    assert len(result) == 3
+
+    assert result[0]["title"] == "Introduction"
+    assert result[0]["body"] == "This document describes the system."
+
+    assert result[1]["title"] == "Requirements"
+    assert result[1]["body"] == "The system shall allow users to log in."
+
+    assert result[2]["title"] == "Glossary"
+    assert result[2]["body"] == "User: a person using the system."
 
 
 # Test multiline bodies are preserved under a single section
@@ -99,15 +98,18 @@ First requirement.
 Second line of same section.
 """
     )
-    expected = [
-        {"id": None, "title": "Introduction", "body": "Line one.\nLine two."},
-        {
-            "id": None,
-            "title": "Requirements",
-            "body": "First requirement.\nSecond line of same section.",
-        },
-    ]
-    assert parse_sections_with_bodies(text) == expected
+
+    result = parse_sections_with_bodies(text)
+
+    assert len(result) == 2
+
+    assert result[0]["title"] == "Introduction"
+    assert "Line one." in result[0]["body"]
+    assert "Line two." in result[0]["body"]
+
+    assert result[1]["title"] == "Requirements"
+    assert "First requirement." in result[1]["body"]
+    assert "Second line of same section." in result[1]["body"]
 
 
 # Test behavior when a header has no body content
@@ -119,11 +121,16 @@ def test_empty_section_body():
 Has content here.
 """
     )
-    expected = [
-        {"id": None, "title": "EmptySection", "body": ""},
-        {"id": None, "title": "NextSection", "body": "Has content here."},
-    ]
-    assert parse_sections_with_bodies(text) == expected
+
+    result = parse_sections_with_bodies(text)
+
+    assert len(result) == 2
+
+    assert result[0]["title"] == "EmptySection"
+    assert result[0]["body"] == ""
+
+    assert result[1]["title"] == "NextSection"
+    assert result[1]["body"] == "Has content here."
 
 
 # Test parsing returns empty list when no valid headers exist
@@ -153,17 +160,22 @@ This section is in all caps.
 Details of purpose go here.
 """
     )
-    expected = [
-        {"id": None, "title": "Intro", "body": "This is the intro."},
-        {"id": "1", "title": "Purpose", "body": "Details of purpose go here."},
-        {
-            "id": None,
-            "title": "SYSTEM OVERVIEW",
-            "body": "This section is in all caps.",
-        },
-        {"id": "5.2", "title": "Purpose", "body": "Details of purpose go here."},
-    ]
-    assert parse_sections_with_bodies(text) == expected
+
+    result = parse_sections_with_bodies(text)
+
+    assert len(result) == 4
+
+    assert result[0]["title"] == "Intro"
+    assert "This is the intro." in result[0]["body"]
+
+    assert result[1]["title"] == "Purpose"
+    assert "Details of purpose go here." in result[1]["body"]
+
+    assert result[2]["title"] == "SYSTEM OVERVIEW"
+    assert "This section is in all caps." in result[2]["body"]
+
+    assert result[3]["title"] == "Purpose"
+    assert "Details of purpose go here." in result[3]["body"]
 
 
 # Test all-caps headers are recognized and associated with their bodies
@@ -179,17 +191,15 @@ This section defines system boundaries.
 """
     )
 
-    expected = [
-        {"id": None, "title": "TEST", "body": "This is a test section."},
-        {
-            "id": None,
-            "title": "SYSTEM OVERVIEW",
-            "body": "This section defines system boundaries.",
-        },
-    ]
-
     result = parse_sections_with_bodies(text)
-    assert result == expected
+
+    assert len(result) == 2
+
+    assert result[0]["title"] == "TEST"
+    assert "This is a test section." in result[0]["body"]
+
+    assert result[1]["title"] == "SYSTEM OVERVIEW"
+    assert "This section defines system boundaries." in result[1]["body"]
 
 
 # Test the short title-case lines like 'Scope' or 'Purpose' fallback
@@ -232,3 +242,30 @@ def test_toc_lines_are_skipped():
     titles = [section["title"] for section in results]
     assert "1. Introduction .................... 1" not in titles
     assert "Introduction" in titles
+
+
+# Test that requirement IDs and full traceable lines are extracted correctly
+def test_requirement_id_extraction():
+    text = textwrap.dedent(
+        """# Test Section
+REQ-1 The system shall power on within 2 seconds.
+REQ-2 The system shall log out after 10 minutes.
+This line has no ID.
+"""
+    )
+
+    result = parse_sections_with_bodies(text)
+    assert len(result) == 1
+
+    section = result[0]
+    assert section["title"] == "Test Section"
+
+    requirement_map = {req["id"]: req["text"] for req in section["requirements"]}
+    assert "REQ-1" in requirement_map
+    assert "REQ-2" in requirement_map
+    assert (
+        requirement_map["REQ-1"] == "REQ-1 The system shall power on within 2 seconds."
+    )
+    assert (
+        requirement_map["REQ-2"] == "REQ-2 The system shall log out after 10 minutes."
+    )

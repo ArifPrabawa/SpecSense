@@ -32,7 +32,7 @@ def analyze_requirement(text: str) -> str:
     # LLM call to generate analysis
     try:
         response = get_client().chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-3.5-turbo-0125",
             messages=[
                 {
                     "role": "system",
@@ -69,7 +69,7 @@ def suggest_tests(section_text: str) -> str:
 
     try:
         response = get_client().chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-3.5-turbo-0125",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             max_tokens=300,
@@ -105,13 +105,23 @@ def compare_toc_sections_with_llm(
             return "⚠️ Skipped: one or both TOC lists are empty."
 
         prompt = (
-            "You are analyzing the structure of a software requirements document.\n\n"
-            "Compare the following TOC sections from a user's document to the standard structure.\n"
-            "Return a list showing which standard sections were matched, missing, or fuzzy-matched.\n\n"
+            "You are reviewing a software requirements document.\n\n"
+            "Compare the user's Table of Contents (TOC) against the provided standard structure.\n"
+            "Classify each standard section as:\n"
+            "- **Matched**: appears identically in the document TOC\n"
+            "- **Fuzzy Matched**: meaning is close but the wording, numbering, or spelling differs\n"
+            "- **Missing**: not present or not reasonably aligned\n\n"
+            "Be tolerant of spelling mistakes (e.g., 'Pupose' vs 'Purpose') and section number differences (e.g., '5.1.1' vs '1.1').\n\n"
+            "**Each standard section must appear in exactly one category. If a section is fuzzy matched, do not include it in the Missing list.**\n\n"
+            "Only output the grouped results using the following Markdown structure:\n\n"
+            "Matched Sections:\n"
+            "- section name\n\n"
+            "Fuzzy Matched Sections:\n"
+            "- section name (Fuzzy match to: 'document section name')\n\n"
+            "Missing Sections:\n"
+            "- section name\n\n"
             f"Standard TOC:\n{chr(10).join(f'- {s}' for s in standard_sections)}\n\n"
-            f"Document TOC:\n{chr(10).join(f'- {s}' for s in document_sections)}\n\n"
-            "Output as a Markdown bullet list. If a section is fuzzy-matched, note it. "
-            "If a section is missing, list it under 'Missing Sections'."
+            f"Document TOC:\n{chr(10).join(f'- {s}' for s in document_sections)}"
         )
 
         response = get_client().chat.completions.create(

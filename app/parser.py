@@ -6,6 +6,8 @@ Public functions:
 - parse_sections_with_bodies(text): returns list of dicts {title, body}
 """
 
+import re
+
 from app.header_rules import (
     is_markdown_header,
     is_numbered_header,
@@ -93,11 +95,13 @@ def parse_sections_with_bodies(text):
 
         # Save previous section before starting a new one
         if current_section or current_body:
+            section_body = "\n".join(current_body).strip()
             sections.append(
                 {
                     "id": current_section["id"] if current_section else None,
                     "title": current_section["title"] if current_section else "",
-                    "body": "\n".join(current_body).strip(),
+                    "body": section_body,
+                    "requirements": extract_requirement_statements(section_body),
                 }
             )
             current_body = []
@@ -106,12 +110,40 @@ def parse_sections_with_bodies(text):
 
     # Add the final section after loop ends
     if current_section:
+        section_body = "\n".join(current_body).strip()
         sections.append(
             {
                 "id": current_section["id"],
                 "title": current_section["title"],
-                "body": "\n".join(current_body).strip(),
+                "body": section_body,
+                "requirements": extract_requirement_statements(section_body),
             }
         )
 
     return sections
+
+
+def extract_requirement_statements(text: str) -> list[dict]:
+    """
+    Scans body text line-by-line and returns a list of
+    {'id': ..., 'text': ...} mappings for each line containing a requirement ID.
+    """
+    if not text:
+        return []
+
+    patterns = [
+        r"\bREQ-\d+\b",  # REQ-001
+        r"\bID:\s*[A-Z0-9\-]{2,}\b",  # ID: ABC-45
+    ]
+
+    results = []
+    lines = text.splitlines()
+
+    for line in lines:
+        for pattern in patterns:
+            match = re.search(pattern, line)
+            if match:
+                results.append({"id": match.group().strip(), "text": line.strip()})
+                break  # Stop at first match per line
+
+    return results

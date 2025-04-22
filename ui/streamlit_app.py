@@ -12,6 +12,11 @@ from app.llm import analyze_requirement, suggest_tests
 from app.export import format_analysis_as_markdown
 from app.file_reader import read_uploaded_file
 from ui.components import render_section_result
+from app.traceability import (
+    build_traceability_index,
+    export_traceability_as_json,
+    export_traceability_as_csv,
+)
 
 
 def main():
@@ -23,7 +28,7 @@ def main():
         "_Upload a file or paste text below. If both are provided, the uploaded file will be used._"
     )
 
-    # Button to enable the TOC comparis
+    # Button to enable the TOC comparison
     with st.sidebar:
         st.header("Settings")
         use_llm_fuzzy = st.checkbox(
@@ -63,6 +68,7 @@ def main():
 
         # Step 1: Parse SRS into sections (headers + body content)
         results = parse_sections_with_bodies(document_text)
+        st.session_state["parsed_sections"] = results
         st.success(f"Found {len(results)} sections.")
 
         # Step 2: Analyze each section via LLM and format results
@@ -88,7 +94,7 @@ def main():
                 "raw": analysis,
                 "tests": test_suggestions,
             }
-
+        st.session_state["analysis_results"] = analysis_results
         # Optional: View raw analysis result dictionary
         with st.expander(" Debug: Raw Analysis Output"):
             st.json(analysis_results)
@@ -130,6 +136,30 @@ def main():
         )
 
         st.markdown("---")
+    # === Traceability Export Button Flow ===
+    if st.button("Generate Traceability Export"):
+        if "parsed_sections" in st.session_state:
+            trace_index = build_traceability_index(st.session_state["parsed_sections"])
+            trace_json = export_traceability_as_json(trace_index)
+            trace_csv = export_traceability_as_csv(trace_index)
+
+            st.markdown("### Download Requirement Traceability")
+
+            st.download_button(
+                label="Download Traceability (JSON)",
+                data=trace_json,
+                file_name="traceability.json",
+                mime="application/json",
+            )
+
+            st.download_button(
+                label="Download Traceability (CSV)",
+                data=trace_csv,
+                file_name="traceability.csv",
+                mime="text/csv",
+            )
+        else:
+            st.warning("Please run analysis first to extract requirements.")
 
         # Visual end-of-analysis divider
         st.divider()
