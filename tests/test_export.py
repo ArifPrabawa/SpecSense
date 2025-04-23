@@ -1,4 +1,9 @@
-from app.export import format_analysis_as_markdown
+from app.export import (
+    format_analysis_as_markdown,
+    generate_requirement_summary,
+    extract_requirement_lines,
+    generate_requirement_summary_from_sections,
+)
 
 
 # Test that format_analysis_as_markdown returns correctly structured Markdown
@@ -78,3 +83,67 @@ def test_format_analysis_handles_empty_fields():
     assert "### LLM Analysis" in markdown
     assert "### Suggested Tests" in markdown
     assert markdown.count("---") == 1
+
+
+# ✅ Test summary output when all expected groups are present and no gaps exist
+def test_generate_summary_with_all_groups_and_no_gaps():
+    grouped = {
+        "Authentication": [{"id": "REQ-1"}, {"id": "REQ-2"}],
+        "Security": [{"id": "REQ-3"}],
+    }
+    gaps = []
+
+    summary = generate_requirement_summary(grouped, gaps)
+
+    assert "Authentication" in summary
+    assert "Security" in summary
+    assert "✅ All expected categories are present." in summary
+
+
+# ✅ Test summary output when some expected categories are missing
+def test_generate_summary_with_missing_categories():
+    grouped = {"Authentication": [{"id": "REQ-1"}]}
+    gaps = ["Security", "Error Handling"]
+
+    summary = generate_requirement_summary(grouped, gaps)
+
+    assert "Authentication" in summary
+    assert "Security" in summary
+    assert "Error Handling" in summary
+    assert "⚠️ Missing Requirement Categories" in summary
+
+
+# ✅ Test summary output when no requirements were grouped at all
+def test_generate_summary_with_no_grouped_requirements():
+    grouped = {}
+    gaps = ["Authentication", "Security"]
+
+    summary = generate_requirement_summary(grouped, gaps)
+
+    assert "No grouped requirements found." in summary
+    assert "Authentication" in summary
+    assert "Security" in summary
+
+
+# ✅ Test for REQ-xxx extraction from section bodies
+def test_extract_requirement_lines():
+    sections = [
+        {"body": "REQ-1 The system shall authenticate.\nREQ-2 The system shall retry."},
+        {"body": "No requirements here."},
+    ]
+    extracted = extract_requirement_lines(sections)
+    assert len(extracted) == 2
+    assert extracted[0]["id"] == "REQ-1"
+    assert "authenticate" in extracted[0]["text"]
+
+
+# ✅ Test the full top-level UI-facing function
+def test_generate_summary_from_sections():
+    sections = [
+        {
+            "body": "REQ-1 The system shall authenticate users.\nREQ-2 The system must handle errors."
+        }
+    ]
+    summary = generate_requirement_summary_from_sections(sections)
+    assert "Authentication" in summary
+    assert "Error Handling" in summary

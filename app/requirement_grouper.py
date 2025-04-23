@@ -9,15 +9,31 @@ def get_requirement_categories() -> dict:
     This is the single source of truth for both grouping and expected categories.
     """
     return {
-        "Authentication": ["login", "authenticate", "password", "user credentials"],
+        "Authentication": [
+            "login",
+            "authenticate",
+            "password",
+            "credentials",
+            "access",
+        ],
         "Error Handling": ["fail", "error", "retry", "invalid", "exception"],
         "Security": [
+            "encrypt",
             "encryption",
             "access control",
             "confidentiality",
             "authorization",
         ],
-        "Data Handling": ["save", "load", "store", "retrieve", "record"],
+        "Data Handling": [
+            "save",
+            "load",
+            "store",
+            "record",
+            "retrieve",
+            "transmit",
+            "data",
+            "backup",
+        ],
     }
 
 
@@ -54,12 +70,11 @@ def detect_gaps(grouped_requirements: dict) -> list:
     Returns:
         list: A list of missing requirement categories.
     """
-    categories = get_requirement_categories()  # Get both categories and their keywords
-    expected_requirements = list(categories.keys())  # Use the category names directly
+    categories = get_requirement_categories()
+    expected = list(categories.keys())
 
-    missing = []
-    for category in expected_requirements:
-        if category not in grouped_requirements:
-            missing.append(category)
-
-    return missing
+    return [
+        cat
+        for cat in expected
+        if cat not in grouped_requirements or not grouped_requirements[cat]
+    ]

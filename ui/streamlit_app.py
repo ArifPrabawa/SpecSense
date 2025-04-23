@@ -9,7 +9,10 @@ import json
 from app.parser import parse_sections_with_bodies
 from app.formatter import format_llm_response
 from app.llm import analyze_requirement, suggest_tests
-from app.export import format_analysis_as_markdown
+from app.export import (
+    format_analysis_as_markdown,
+    generate_requirement_summary_from_sections,
+)
 from app.file_reader import read_uploaded_file
 from ui.components import render_section_result
 from app.traceability import (
@@ -44,6 +47,12 @@ def main():
     if uploaded_file:
         is_docx = uploaded_file.name.lower().endswith(".docx")
 
+    document_text = read_uploaded_file(uploaded_file)
+
+    # Paste fallback only if no file uploaded
+    if document_text is None:
+        document_text = st.text_area("SRS Document Text", height=300)
+
     # Allow user to run a structural conformance check (TOC vs standard template)
     # This is a shallow structure check, not content-based or semantic yet
     if st.button("Run Structure Check"):
@@ -54,11 +63,6 @@ def main():
         display_structure_check_results(toc_result)
         # Rewind the file stream so it can be re-used later by read_uploaded_file()
         uploaded_file.seek(0)
-    document_text = read_uploaded_file(uploaded_file)
-
-    # Paste fallback only if no file uploaded
-    if document_text is None:
-        document_text = st.text_area("SRS Document Text", height=300)
 
     # Run parser + analysis on button click
     if st.button("Analyze"):
@@ -70,6 +74,11 @@ def main():
         results = parse_sections_with_bodies(document_text)
         st.session_state["parsed_sections"] = results
         st.success(f"Found {len(results)} sections.")
+
+        # Generate requirement group summary
+
+        with st.expander("📊 Requirements Overview"):
+            st.markdown(generate_requirement_summary_from_sections(results))
 
         # Step 2: Analyze each section via LLM and format results
         analysis_results = {}

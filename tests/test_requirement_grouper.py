@@ -39,7 +39,8 @@ def test_group_requirements_keyword_match():
     )
 
 
-def test_group_requirements_and_gaps():
+# Test empty group detection.
+def test_detect_gaps_flags_empty_groups_as_missing():
     requirements = [
         {"id": "REQ-1", "text": "The system shall authenticate users securely."},
         {"id": "REQ-2", "text": "The system must retry on error."},
@@ -59,4 +60,16 @@ def test_group_requirements_and_gaps():
     assert "Authentication" in grouped
 
     # No missing categories should be found
+    assert gaps == ["Security"]
+
+
+# Test no gap group detection.
+def test_detect_gaps_no_missing_categories():
+    grouped = {
+        "Authentication": [{"id": "REQ-1"}],
+        "Error Handling": [{"id": "REQ-2"}],
+        "Security": [{"id": "REQ-3"}],
+        "Data Handling": [{"id": "REQ-4"}],
+    }
+    gaps = detect_gaps(grouped)
     assert gaps == []
