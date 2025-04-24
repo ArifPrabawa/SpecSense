@@ -155,3 +155,24 @@
 
 ### Notes
 - The summary section for cross-section analysis remains a future task.
+
+## [v0.12.0] - Requirements Grouping, Gap Detection, and Summary View
+
+### Added
+- `group_requirements()` in `requirement_grouper.py` to perform keyword-based categorization of REQ lines using themes such as Authentication, Error Handling, Security, and Data Handling.
+- `detect_gaps()` in `requirement_grouper.py` to identify missing or empty requirement categories.
+- `extract_requirement_lines()` in `export.py` to isolate REQ-xxx lines from section bodies for grouping logic.
+- `generate_requirement_summary()` in `export.py` to format grouped counts and gap detection results as a clean Markdown summary.
+- `generate_requirement_summary_from_sections()` in `export.py` to support UI-friendly input from parsed sections.
+- Summary section added to Streamlit UI under “📊 Requirements Overview”, triggered after parsing and analysis.
+- Full test coverage added for:
+  - `group_requirements()` and `detect_gaps()` in `test_requirement_grouper.py`
+  - `extract_requirement_lines()` and both summary functions in `test_export.py`
+
+### Changed
+- `detect_gaps()` now flags categories with empty requirement lists as missing (not just absent keys).
+- Updated all relevant tests to reflect the corrected gap detection logic.
+
+### Notes
+- This version finalizes all non-LLM grouping and summary logic in preparation for semantic LLM enhancements.
+- Architecture remains LLM-ready: grouping logic is modular, and summary generation can be replaced with synthesis logic in later version
