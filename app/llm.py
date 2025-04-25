@@ -5,6 +5,7 @@ Handles communication with OpenAI's API for analyzing requirement clarity.
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
+import json
 
 load_dotenv()
 
@@ -142,3 +143,116 @@ def compare_toc_sections_with_llm(
         return content.strip()
     except Exception as e:
         return f"OpenAI error: {str(e)}"
+
+
+def build_grouping_prompt(categories: list[str]) -> str:
+    """
+    Builds a system prompt instructing the LLM to classify a requirement into known categories.
+
+    Args:
+        categories (list[str]): List of known category names (e.g., from get_requirement_categories()).
+
+    Returns:
+        str: A formatted system prompt requesting JSON array output of matching categories.
+    """
+    category_list = ", ".join(f'"{cat}"' for cat in categories)
+    return (
+        "You are an expert requirements analyst.\n"
+        "Classify the following requirement into one or more of these categories:\n"
+        f"{category_list}\n\n"
+        'Return only the category names as a JSON array (e.g., ["Authentication", "Security"]).'
+    )
+
+
+def llm_group_requirement(text: str) -> list[str]:
+    """
+    Uses GPT to classify a requirement into one or more semantic categories.
+    Returns a list of category names (e.g., ["Authentication", "Security"]).
+    """
+    from app.requirement_grouper import get_requirement_categories
+    import os
+
+    categories = list(get_requirement_categories().keys())
+    prompt = build_grouping_prompt(categories)
+
+    if not text or len(text.strip()) < 20:
+        return []
+
+    if not os.getenv("OPENAI_API_KEY"):
+        return ["⚠️ No API Key"]
+
+    try:
+        client = get_client()
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": prompt,
+                },
+                {"role": "user", "content": text.strip()},
+            ],
+            temperature=0.2,
+        )
+
+        content = response.choices[0].message.content.strip()
+
+        try:
+            parsed = json.loads(content)
+            if isinstance(parsed, list):
+                return [cat for cat in parsed if isinstance(cat, str)]
+            else:
+                return ["⚠️ Unexpected format"]
+        except json.JSONDecodeError:
+            return ["⚠️ Unexpected format"]
+    except Exception as e:
+        # Catch anything else: OpenAI connection issues, unexpected structure, etc.
+        return [f"OpenAI error: {str(e)}"]
+
+
+def summarize_analysis(analysis_results: dict) -> str:
+    """
+    Uses GPT to generate a high-level summary based on all section-level analyses.
+    Extracts 'analysis' strings from each section and sends them to the LLM
+    to identify patterns, risks, and common concerns across the document.
+
+    Returns:
+        str: A Markdown-formatted summary or fallback message.
+    """
+    import os
+
+    if not os.getenv("OPENAI_API_KEY"):
+        return "⚠️ Summary skipped — OpenAI API key not set."
+
+    summaries = [
+        section.get("analysis", "").strip()
+        for section in analysis_results.values()
+        if section.get("analysis") and "Skipped" not in section.get("analysis", "")
+    ]
+
+    if not summaries:
+        return "⚠️ No analysis content available to summarize."
+
+    context = "\n\n".join(summaries)
+
+    prompt = (
+        "You are an expert requirements analyst.\n"
+        "Given the following section-level observations from a Software Requirements Specification (SRS), "
+        "summarize the key concerns, vague areas, and recurring patterns. "
+        "Return a short, high-level overview in Markdown format (2–3 short paragraphs, under 200 words).\n\n"
+        "### Observations:\n"
+        f"{context}\n"
+    )
+
+    try:
+        client = get_client()
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": prompt},
+            ],
+            temperature=0.4,
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return f"⚠️ Summary generation failed: {str(e)}"

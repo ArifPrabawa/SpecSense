@@ -51,6 +51,69 @@ def extract_sections(text):
     return sections
 
 
+def is_title_block_line(line: str) -> bool:
+    """
+    Determines whether a line is part of a document's title block.
+
+    Title block lines typically appear at the top of SRS documents and include
+    metadata such as project name, version, and date. These lines are not actual
+    section headers and should be excluded from requirement parsing.
+
+    Args:
+        line (str): A single line from the input document.
+
+    Returns:
+        bool: True if the line is part of the title block, False otherwise.
+    """
+    stripped = line.strip().lower()
+
+    known_exact = {
+        "software requirements specification",
+        "table of contents",
+    }
+
+    known_prefixes = ["project:", "version:", "date:"]
+
+    for prefix in known_prefixes:
+        if stripped.startswith(prefix):
+            return True
+
+    return stripped in known_exact
+
+
+def strip_title_block(lines: list[str]) -> list[str]:
+    """
+    Removes the document's initial title block from a list of lines.
+
+    Many SRS documents begin with metadata such as project title, version, date,
+    and a "Table of Contents" heading before the actual requirements begin.
+    This function removes those lines to prevent them from being misclassified
+    as section headers.
+
+    The title block is assumed to appear only at the top of the document.
+    Filtering stops as soon as the first line is encountered that does not match
+    known title block patterns.
+
+    Args:
+        lines (list[str]): Raw lines from the input document.
+
+    Returns:
+        list[str]: The remaining lines after removing the title block.
+    """
+    filtered = []
+    in_title_block = True
+
+    for line in lines:
+        if in_title_block and is_title_block_line(line):
+            continue
+        if in_title_block and not line.strip():
+            continue  # skip blank lines right after title metadata
+        in_title_block = False
+        filtered.append(line)
+
+    return filtered
+
+
 def parse_sections_with_bodies(text):
     """
     Extracts section headers and their corresponding body text from raw input.
@@ -66,6 +129,7 @@ def parse_sections_with_bodies(text):
     current_body = []
 
     lines = text.splitlines()
+    lines = strip_title_block(lines)
     for i, line in enumerate(lines):
         line = line.strip()
 

@@ -176,3 +176,12 @@
 ### Notes
 - This version finalizes all non-LLM grouping and summary logic in preparation for semantic LLM enhancements.
 - Architecture remains LLM-ready: grouping logic is modular, and summary generation can be replaced with synthesis logic in later version
+
+## [v0.13.0] - LLM Summary Synthesis
+### Added
+- `summarize_analysis()` in `llm.py` to synthesize section-level analyses into a high-level overview
+- Streamlit UI block displaying GPT-4 generated summary using Markdown
+- Full pytest coverage with mocking for `summarize_analysis()`
+
+### Improved
+- Replaced placeholder summary block with functional LLM-backed insights

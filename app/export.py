@@ -1,5 +1,6 @@
 import re
 from app.requirement_grouper import group_requirements, detect_gaps
+from app.llm import llm_group_requirement
 
 
 def format_analysis_as_markdown(analysis_results: dict) -> str:
@@ -68,10 +69,10 @@ def generate_requirement_summary(grouped: dict, gaps: list) -> str:
     Logic-facing summary generator for grouped requirements and detected gaps.
     Keeps testability and separation of concerns.
     """
-    lines = ["## 📊 Requirements Overview", ""]
+    lines = []
 
     if grouped:
-        lines.append("### Grouped Requirements:")
+        lines.append("### 📊 Grouped Requirements:")
         for category, items in grouped.items():
             lines.append(f"- **{category}**: {len(items)} requirement(s)")
     else:
@@ -87,3 +88,23 @@ def generate_requirement_summary(grouped: dict, gaps: list) -> str:
         lines.append("✅ All expected categories are present.")
 
     return "\n".join(lines)
+
+
+def group_requirements_with_llm(parsed_sections: list[dict]) -> list[dict]:
+    """
+    Extracts REQ lines and assigns LLM-based semantic groupings.
+
+    Args:
+        parsed_sections (list[dict]): Parsed section data with body text.
+
+    Returns:
+        list[dict]: List of REQs with LLM-assigned groups (id, text, llm_group).
+    """
+    reqs = extract_requirement_lines(parsed_sections)
+    enriched = []
+
+    for req in reqs:
+        groups = llm_group_requirement(req["text"])
+        enriched.append({"id": req["id"], "text": req["text"], "llm_group": groups})
+
+    return enriched

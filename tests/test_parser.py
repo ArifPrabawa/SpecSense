@@ -1,5 +1,5 @@
 import textwrap
-from app.parser import extract_sections, parse_sections_with_bodies
+from app.parser import extract_sections, parse_sections_with_bodies, strip_title_block
 from app.header_rules import is_all_caps_header, is_markdown_header, is_numbered_header
 
 
@@ -269,3 +269,25 @@ This line has no ID.
     assert (
         requirement_map["REQ-2"] == "REQ-2 The system shall log out after 10 minutes."
     )
+
+
+# ✅ Test that strip_title_block removes known title metadata lines at the top
+def test_strip_title_block_removes_metadata_lines():
+    lines = [
+        "Software Requirements Specification",
+        "Project: SpecSense AI Tool",
+        "Version: 1.0",
+        "Date: 2025-04-22",
+        "",
+        "1 Introduction",
+        "This is the actual first section.",
+    ]
+
+    result = strip_title_block(lines)
+
+    assert "Software Requirements Specification" not in result
+    assert "Project: SpecSense AI Tool" not in result
+    assert "Version: 1.0" not in result
+    assert "Date: 2025-04-22" not in result
+    assert result[0] == "1 Introduction"
+    assert result[1] == "This is the actual first section."

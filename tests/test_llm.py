@@ -1,7 +1,12 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from app.llm import analyze_requirement, suggest_tests
-from app.llm import compare_toc_sections_with_llm
+from app.llm import (
+    analyze_requirement,
+    suggest_tests,
+    compare_toc_sections_with_llm,
+    llm_group_requirement,
+    summarize_analysis,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -206,3 +211,100 @@ def test_compare_toc_sections_with_llm_semantic_equivalence():
     assert "Fuzzy Matched Sections" in result
     assert "User Interface Requirements" in result
     assert "GUI Specs" in result
+
+
+# ✅ Test LLM group assignment with mocked valid JSON array response
+@patch("app.llm.get_client")
+def test_llm_group_requirement_valid_response(mock_get_client):
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock()]
+    mock_response.choices[0].message.content = '["Authentication", "Security"]'
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.return_value = mock_response
+    mock_get_client.return_value = mock_client
+
+    result = llm_group_requirement("The system shall authenticate users securely.")
+    assert "Authentication" in result
+    assert "Security" in result
+
+
+# ✅ Test that a malformed (non-JSON) response is caught
+@patch("app.llm.get_client")
+def test_llm_group_requirement_malformed_response(mock_get_client):
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock()]
+    mock_response.choices[0].message.content = "Oops, not a JSON array"
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.return_value = mock_response
+    mock_get_client.return_value = mock_client
+
+    result = llm_group_requirement("REQ-1 Something vague")
+    assert result == ["⚠️ Unexpected format"]
+
+
+# ✅ Test fallback on OpenAI failure
+@patch("app.llm.get_client")
+def test_llm_group_requirement_handles_openai_exception(mock_get_client):
+    mock_get_client.side_effect = Exception("Simulated API failure")
+    result = llm_group_requirement("REQ-99 Simulated crash")
+    assert result[0].startswith("OpenAI error:")
+
+
+# ✅ Test skip logic for short input
+def test_llm_group_requirement_skips_short_input():
+    result = llm_group_requirement("Too short.")
+    assert result == []
+
+
+# ✅ Test fallback for missing API key
+def test_llm_group_requirement_no_api_key(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    result = llm_group_requirement("REQ-7 The system shall log errors.")
+    assert result == ["⚠️ No API Key"]
+
+
+# ✅ Test that summarize_analysis handles missing API key gracefully
+def test_summarize_analysis_skips_without_api_key(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    result = summarize_analysis({"5.1": {"analysis": "Some analysis here."}})
+    assert result.startswith("⚠️ Summary skipped")
+
+
+# ✅ Test that summarize_analysis handles empty analysis_results cleanly
+def test_summarize_analysis_handles_empty_input():
+    result = summarize_analysis({})
+    assert result.startswith("⚠️ No analysis content")
+
+
+# ✅ Test that summarize_analysis filters out 'Skipped' sections
+def test_summarize_analysis_ignores_skipped_sections():
+    input_data = {
+        "5.1": {"analysis": "Skipped analysis — section too short or empty."},
+        "5.2": {"analysis": ""},
+    }
+    result = summarize_analysis(input_data)
+    assert result.startswith("⚠️ No analysis content")
+
+
+# ✅ Test that summarize_analysis returns LLM result when analysis exists
+@patch("app.llm.get_client")
+def test_summarize_analysis_returns_llm_response(mock_get_client):
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock()]
+    mock_response.choices[0].message.content = "Mocked summary output."
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.return_value = mock_response
+    mock_get_client.return_value = mock_client
+
+    input_data = {
+        "5.1": {"analysis": "Authentication requires clarification on user roles."},
+        "5.2": {"analysis": "Encryption methods are not clearly specified."},
+    }
+
+    result = summarize_analysis(input_data)
+
+    assert result == "Mocked summary output."

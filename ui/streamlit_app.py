@@ -8,10 +8,11 @@ import streamlit as st
 import json
 from app.parser import parse_sections_with_bodies
 from app.formatter import format_llm_response
-from app.llm import analyze_requirement, suggest_tests
+from app.llm import analyze_requirement, suggest_tests, summarize_analysis
 from app.export import (
     format_analysis_as_markdown,
     generate_requirement_summary_from_sections,
+    group_requirements_with_llm,
 )
 from app.file_reader import read_uploaded_file
 from ui.components import render_section_result
@@ -75,6 +76,12 @@ def main():
         st.session_state["parsed_sections"] = results
         st.success(f"Found {len(results)} sections.")
 
+        llm_grouped_reqs = group_requirements_with_llm(results)
+
+        with st.expander("🤖 LLM-Based Requirement Grouping"):
+            for req in llm_grouped_reqs:
+                st.markdown(f"- **{req['id']}**: {', '.join(req['llm_group'])}")
+
         # Generate requirement group summary
 
         with st.expander("📊 Requirements Overview"):
@@ -115,11 +122,11 @@ def main():
         for title, result in analysis_results.items():
             render_section_result(title, result)
 
-        # Summary teaser (still in main content flow)
-        st.markdown("###  Summary (Coming Soon)")
-        st.info(
-            "We're working on a cross-section analysis view to summarize risks and themes."
-        )
+        # LLM Summary view (replaces "coming soon" block)
+        summary_text = summarize_analysis(analysis_results)
+
+        st.markdown("### 🧠 LLM Summary Overview")
+        st.markdown(summary_text)
 
         # === Export Section ===
         st.markdown("### Download Analysis Output")
