@@ -228,7 +228,7 @@ def build_summary_prompt(clean_count: int, total_count: int) -> str:
         "- **Focus on meaning, not format.**\n"
         "\n"
         "If most requirements were clear, note it positively.\n"
-        "Return your output in Markdown, 2–3 short paragraphs, suitable for project teams."   
+        "Return your output in Markdown, 2–3 short paragraphs, suitable for project teams."
     )
 
 
@@ -239,17 +239,23 @@ def strip_analysis_noise(text: str) -> str:
     """
     lines = text.splitlines()
     clean = []
-    skip_labels = {"- Ambiguity", "- Vagueness", "- Implicit behavior", "- Testability issues"}
+    skip_labels = {
+        "- Ambiguity",
+        "- Vagueness",
+        "- Implicit behavior",
+        "- Testability issues",
+    }
 
     for i, line in enumerate(lines):
         if line.strip() in skip_labels:
             continue
         # Also skip empty lines between categories
-        if line.strip() == "" and (i > 0 and lines[i-1].strip() in skip_labels):
+        if line.strip() == "" and (i > 0 and lines[i - 1].strip() in skip_labels):
             continue
         clean.append(line)
 
     return "\n".join(clean)
+
 
 def summarize_analysis(analysis_results: dict) -> str:
     """
