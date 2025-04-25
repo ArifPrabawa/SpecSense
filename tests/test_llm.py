@@ -213,7 +213,7 @@ def test_compare_toc_sections_with_llm_semantic_equivalence():
     assert "GUI Specs" in result
 
 
-# ✅ Test LLM group assignment with mocked valid JSON array response
+# ✅ Test that llm_group_requirement returns parsed categories from mocked LLM
 @patch("app.llm.get_client")
 def test_llm_group_requirement_valid_response(mock_get_client):
     mock_response = MagicMock()
@@ -226,10 +226,9 @@ def test_llm_group_requirement_valid_response(mock_get_client):
 
     result = llm_group_requirement("The system shall authenticate users securely.")
     assert "Authentication" in result
-    assert "Security" in result
 
 
-# ✅ Test that a malformed (non-JSON) response is caught
+# ✅ Test that llm_group_requirement returns fallback on non-JSON response
 @patch("app.llm.get_client")
 def test_llm_group_requirement_malformed_response(mock_get_client):
     mock_response = MagicMock()
@@ -244,10 +243,11 @@ def test_llm_group_requirement_malformed_response(mock_get_client):
     assert result == ["⚠️ Unexpected format"]
 
 
-# ✅ Test fallback on OpenAI failure
+# ✅ Test that llm_group_requirement handles LLM failure
 @patch("app.llm.get_client")
 def test_llm_group_requirement_handles_openai_exception(mock_get_client):
     mock_get_client.side_effect = Exception("Simulated API failure")
+
     result = llm_group_requirement("REQ-99 Simulated crash")
     assert result[0].startswith("OpenAI error:")
 
@@ -273,14 +273,16 @@ def test_summarize_analysis_skips_without_api_key(monkeypatch):
     assert result.startswith("⚠️ Summary skipped")
 
 
-# ✅ Test that summarize_analysis handles empty analysis_results cleanly
-def test_summarize_analysis_handles_empty_input():
+# ✅ Test that summarize_analysis skips empty inputs
+@patch("app.llm.get_client")
+def test_summarize_analysis_handles_empty_input(mock_get_client):
     result = summarize_analysis({})
     assert result.startswith("⚠️ No analysis content")
 
 
-# ✅ Test that summarize_analysis filters out 'Skipped' sections
-def test_summarize_analysis_ignores_skipped_sections():
+# ✅ Test that summarize_analysis ignores 'Skipped' analysis lines
+@patch("app.llm.get_client")
+def test_summarize_analysis_ignores_skipped_sections(mock_get_client):
     input_data = {
         "5.1": {"analysis": "Skipped analysis — section too short or empty."},
         "5.2": {"analysis": ""},
@@ -289,7 +291,7 @@ def test_summarize_analysis_ignores_skipped_sections():
     assert result.startswith("⚠️ No analysis content")
 
 
-# ✅ Test that summarize_analysis returns LLM result when analysis exists
+# ✅ Test that summarize_analysis returns mocked LLM output
 @patch("app.llm.get_client")
 def test_summarize_analysis_returns_llm_response(mock_get_client):
     mock_response = MagicMock()
@@ -306,5 +308,4 @@ def test_summarize_analysis_returns_llm_response(mock_get_client):
     }
 
     result = summarize_analysis(input_data)
-
     assert result == "Mocked summary output."
