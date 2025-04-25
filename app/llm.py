@@ -218,19 +218,38 @@ def llm_group_requirement(text: str) -> list[str]:
 def build_summary_prompt(clean_count: int, total_count: int) -> str:
     return (
         "You are an expert requirements analyst reviewing a Software Requirements Specification (SRS).\n"
-        f"Out of {total_count} requirements, {clean_count} were marked as clear and testable.\n"
-        "The remaining sections included observations on ambiguity, vagueness, or testability issues.\n"
+        f"There are {total_count} requirements analyzed. {clean_count} were clear and testable.\n"
+        "The rest had varying observations about quality, some including ambiguity, vagueness, or testability challenges.\n"
         "\n"
-        "Your task is to write a concise summary of the overall quality of the requirements, using balanced and professional language.\n"
-        "If many sections are well-formed, say so clearly. Only highlight recurring issues if they appear frequently.\n"
-        "Avoid opening with a generic list like 'ambiguity, vagueness, implicit behavior...' unless these were truly widespread.\n"
+        "⚠️ Important:\n"
+        "- **Do NOT open the summary by listing generic issues like ambiguity, vagueness, implicit behavior, or testability.**\n"
+        "- **Do NOT repeat all structural categories.**\n"
+        "- **Only summarize *real trends* across the majority of requirements, not isolated mentions.**\n"
+        "- **Focus on meaning, not format.**\n"
         "\n"
-        "Return your output in Markdown format, 2–3 short paragraphs, suitable for a project team or reviewer.\n"
-        "\n"
-        "Example good opening:\n"
-        "✅ Most of the requirements are clearly stated and testable, with a few sections needing refinement in terms of specificity and test criteria.\n"
+        "If most requirements were clear, note it positively.\n"
+        "Return your output in Markdown, 2–3 short paragraphs, suitable for project teams."   
     )
 
+
+def strip_analysis_noise(text: str) -> str:
+    """
+    Removes repeated structural categories from bullet-style LLM outputs
+    (e.g., '- Ambiguity', '- Vagueness') while keeping explanation content.
+    """
+    lines = text.splitlines()
+    clean = []
+    skip_labels = {"- Ambiguity", "- Vagueness", "- Implicit behavior", "- Testability issues"}
+
+    for i, line in enumerate(lines):
+        if line.strip() in skip_labels:
+            continue
+        # Also skip empty lines between categories
+        if line.strip() == "" and (i > 0 and lines[i-1].strip() in skip_labels):
+            continue
+        clean.append(line)
+
+    return "\n".join(clean)
 
 def summarize_analysis(analysis_results: dict) -> str:
     """
@@ -248,7 +267,7 @@ def summarize_analysis(analysis_results: dict) -> str:
     clean_count = sum(1 for s in sections if s["analysis"].strip().startswith("✅"))
     total_count = len(sections)
     summaries = [
-        s["analysis"].strip()
+        strip_analysis_noise(s["analysis"].strip())
         for s in sections
         if not s["analysis"].strip().startswith("✅") and "Skipped" not in s["analysis"]
     ]
