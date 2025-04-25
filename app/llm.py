@@ -39,8 +39,17 @@ def analyze_requirement(text: str) -> str:
                     "role": "system",
                     "content": (
                         "You're an expert in software and systems engineering. "
-                        "Analyze the following requirement for ambiguity, vagueness, or anything that would make it hard to test."
-                        "provide the explanation concisely and in plain terms, with bullet points as necessary."
+                        "Analyze the following requirement for ambiguity, vagueness, implicit behavior, or untestability.\n"
+                        "Only report issues that are actually present — if the requirement is clear, say so.\n"
+                        "\n"
+                        "Return your analysis in Markdown format using the following sections (only include relevant ones):\n"
+                        "- Ambiguity\n"
+                        "- Vagueness\n"
+                        "- Implicit behavior\n"
+                        "- Testability issues\n"
+                        "\n"
+                        "If no issues are found, simply return:\n"
+                        "✅ This requirement is well-defined and testable."
                     ),
                 },
                 {"role": "user", "content": text},
@@ -206,35 +215,49 @@ def llm_group_requirement(text: str) -> list[str]:
         return [f"OpenAI error: {str(e)}"]
 
 
+def build_summary_prompt(clean_count: int, total_count: int) -> str:
+    return (
+        "You are an expert requirements analyst reviewing a Software Requirements Specification (SRS).\n"
+        f"Out of {total_count} requirements, {clean_count} were marked as clear and testable.\n"
+        "The remaining sections included observations on ambiguity, vagueness, or testability issues.\n"
+        "\n"
+        "Your task is to write a concise summary of the overall quality of the requirements, using balanced and professional language.\n"
+        "If many sections are well-formed, say so clearly. Only highlight recurring issues if they appear frequently.\n"
+        "Avoid opening with a generic list like 'ambiguity, vagueness, implicit behavior...' unless these were truly widespread.\n"
+        "\n"
+        "Return your output in Markdown format, 2–3 short paragraphs, suitable for a project team or reviewer.\n"
+        "\n"
+        "Example good opening:\n"
+        "✅ Most of the requirements are clearly stated and testable, with a few sections needing refinement in terms of specificity and test criteria.\n"
+    )
+
+
 def summarize_analysis(analysis_results: dict) -> str:
     """
     Uses GPT to generate a high-level summary based on all section-level analyses.
-    Extracts 'analysis' strings from each section and sends them to the LLM
-    to identify patterns, risks, and common concerns across the document.
-
-    Returns:
-        str: A Markdown-formatted summary or fallback message.
+    Includes numeric context for balance and avoids overgeneralized framing.
     """
+    from app.llm import get_client
 
-    summaries = [
-        section.get("analysis", "").strip()
+    sections = [
+        section
         for section in analysis_results.values()
-        if section.get("analysis") and "Skipped" not in section.get("analysis", "")
+        if "analysis" in section and section["analysis"].strip()
+    ]
+
+    clean_count = sum(1 for s in sections if s["analysis"].strip().startswith("✅"))
+    total_count = len(sections)
+    summaries = [
+        s["analysis"].strip()
+        for s in sections
+        if not s["analysis"].strip().startswith("✅") and "Skipped" not in s["analysis"]
     ]
 
     if not summaries:
         return "⚠️ No analysis content available to summarize."
 
     context = "\n\n".join(summaries)
-
-    prompt = (
-        "You are an expert requirements analyst.\n"
-        "Given the following section-level observations from a Software Requirements Specification (SRS), "
-        "summarize the key concerns, vague areas, and recurring patterns. "
-        "Return a short, high-level overview in Markdown format (2–3 short paragraphs, under 200 words).\n\n"
-        "### Observations:\n"
-        f"{context}\n"
-    )
+    prompt = build_summary_prompt(clean_count, total_count)
 
     try:
         client = get_client()
@@ -242,6 +265,7 @@ def summarize_analysis(analysis_results: dict) -> str:
             model="gpt-4",
             messages=[
                 {"role": "system", "content": prompt},
+                {"role": "user", "content": context},
             ],
             temperature=0.4,
         )

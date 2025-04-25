@@ -309,3 +309,22 @@ def test_summarize_analysis_returns_llm_response(mock_get_client):
 
     result = summarize_analysis(input_data)
     assert result == "Mocked summary output."
+
+
+# ✅ Test that a well-formed requirement is recognized as clear/testable
+@patch("app.llm.get_client")
+def test_analyze_requirement_returns_clean_output(mock_get_client):
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock()]
+    mock_response.choices[0].message.content = (
+        "✅ This requirement is well-defined and testable."
+    )
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.return_value = mock_response
+    mock_get_client.return_value = mock_client
+
+    result = analyze_requirement(
+        "The system shall log off after 10 minutes of inactivity."
+    )
+    assert result.strip().startswith("✅")

@@ -185,3 +185,46 @@
 
 ### Improved
 - Replaced placeholder summary block with functional LLM-backed insights
+
+## v1.0.0
+
+**🎉 MVP Release of SpecSense**
+
+This version marks the first stable release of SpecSense, an AI-powered analysis tool for reviewing Software Requirements Specifications (SRS). It includes:
+
+### 🧠 AI-Driven Analysis
+- Cleaned, testable LLM prompt for `analyze_requirement()` that detects ambiguous, vague, or untestable requirements — or confirms when they're clear.
+- Finalized summary synthesis via `summarize_analysis()` using section-level context and numeric trends to produce balanced project-level insights.
+
+### 📊 Requirements Overview
+- Grouping of requirements based on detected themes (parser-based or LLM-assisted).
+- Gap detection for missing expected categories like Authentication or Error Handling.
+
+### 📄 Traceability + Export
+- JSON/CSV export of parsed sections, requirement IDs, and section-level traceability.
+- Markdown formatting of analysis results, grouped views, and summaries.
+
+### ✅ UI + Test Coverage
+- Streamlit-based interface with analysis toggles and section previews.
+- Full test suite using `pytest`, with LLM call mocking to prevent real API charges.
+- Edge case handling for `.docx` and `.txt` files with TOC detection and malformed headers.
+
+---
+
+## 📦 `README.md` — Suggested Finalized Sections
+
+### 🧠 What It Does
+> SpecSense analyzes SRS documents to detect vague, ambiguous, or untestable requirements using GPT models (GPT-4 or GPT-3.5). It groups related requirements, identifies missing categories, and generates a project-level summary highlighting strengths, issues, and next steps.
+
+### ⚙️ Key Features
+
+- ✅ **LLM-Powered Requirement Analysis**
+- 📊 **Section Grouping & Gap Detection**
+- 📁 **Traceability Mapping (REQ-IDs)**
+- 📄 **Markdown, JSON, CSV Export**
+- 🧪 **Test Coverage with Mocked LLM Calls**
+
+### 🚀 Run Locally
+
+```bash
+streamlit run ui/streamlit_app.py

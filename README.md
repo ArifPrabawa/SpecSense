@@ -1,126 +1,96 @@
 # SpecSense
 
-**SpecSense** is an AI-powered analyzer for Software/System Requirements Specifications (SRS).  
-It helps engineers detect vague, ambiguous, or non-testable requirements using large language models.
-
-Built by a systems/test engineer rebuilding automation and development capability from the ground up.
-
----
-
-## Features (In Progress)
-
-- [x] Extract section headers from raw SRS documents (Markdown, Numbered, ALL CAPS)
-- [x] Return structured section data with titles and body content
-- [x] Minimal Streamlit-based UI for document input and parsing
-- [x] Identify ambiguity or missing test coverage (via OpenAI, in UI) 
-- [x] Suggest tests based on requirement language  
-- [x] Handle bad input, missing API key, and malformed LLM responses
-- [ ] Optional Flask-based UI or API   
+**SpecSense** is an AI-powered analyzer for Software Requirements Specifications (SRS).  
+It helps engineers detect vague, ambiguous, or non-testable requirements using GPT-based models (GPT-3.5 / GPT-4).  
+The tool also supports requirement grouping, traceability export, and project-level summaries — all from a single document upload.
 
 ---
 
-## Setup
+## 💡 Use Case
 
-```bash
-# Create virtual environment (Windows)
-python -m venv .venv
-.venv\Scripts\Activate.ps1
+Engineers, testers, and compliance reviewers can use SpecSense to:
 
-# Install dependencies
-pip install -r requirements.txt
-```
+- Detect unclear requirements early
+- Auto-suggest tests for each SRS section
+- Group requirements by functionality (e.g. Security, Authentication)
+- Export traceable requirement IDs to JSON/CSV
+- Summarize systemic risks or strengths in the specification
 
 ---
 
-## Running Tests
+## 🚀 Features
+
+### 🔍 Section Parser
+- Supports Markdown, numbered headers, and ALL CAPS detection
+- Skips known TOC and metadata sections
+- Supports `.txt` and `.docx` input
+
+### 🤖 LLM-Based Analysis
+- GPT-powered analysis of each requirement section
+- Flags ambiguity, vagueness, implicit behavior, or untestability
+- Can confirm when a section is clear and testable
+- GPT-powered summary of document-wide risks and themes
+
+### 📊 Requirement Grouping & Gap Detection
+- Inline detection of REQ-IDs from section bodies
+- Grouping based on functional keywords or LLM classification
+- Warns if key requirement categories (e.g. Security, Error Handling) are missing
+
+### 📁 Traceability Export
+- Export all REQ-IDs with their section, body, and analysis to JSON or CSV
+- Compatible with tools like DOORS, ReqView, Excel, and audit pipelines
+
+### 🧪 Full Test Coverage
+- 80+ pytest tests
+- All OpenAI calls are mocked
+- Includes failure tests for malformed inputs, empty sections, and API edge cases
+
+---
+
+## 🧪 Running Tests
 
 ```bash
 pytest
 ```
 
-Tests cover:
-- Parsing logic
-- Export formatting
-- OpenAI integration (mocked)
-- Failure cases (bad input, no API, malformed responses)
-
-Currently: 25+ unit tests
 ---
 
-## Environment Variables
-
-Create a `.env` file in the project root with the following:
-
-```
-OPENAI_API_KEY=your-api-key-here
-```
-
-A sample file is available as `.env.example`.
-
----
-## Example Usage
-
-```python
-from app.parser import parse_sections_with_bodies
-
-sample = """# Introduction
-This document outlines the system.
-
-1. Purpose
-The system shall provide user authentication.
-
-SYSTEM OVERVIEW
-This section defines system boundaries.
-"""
-
-output = parse_sections_with_bodies(sample)
-
-# Output:
-[
-    {"title": "Introduction", "body": "This document outlines the system."},
-    {"title": "1. Purpose", "body": "The system shall provide user authentication."},
-    {"title": "SYSTEM OVERVIEW", "body": "This section defines system boundaries."}
-]
-```
----
-
-## Web Interface (LLM-Enhanced)
-
-A minimal Streamlit UI is now included to demonstrate parsing and clarity analysis.
-
-Run it with:
+## 🖥️ Run the App
 
 ```bash
 streamlit run ui/streamlit_app.py
 ```
 
-Paste in raw SRS text and view:
+---
 
--  Extracted sections in an expandable layout
--  AI-powered analysis of each section for ambiguity, vagueness, and testability
--  Clean, formatted output using a custom post-processor
--  Skipped analysis for sections that are too short
+## 🔐 Environment Variables
+
+Create a `.env` file:
+
+```
+OPENAI_API_KEY=your-key-here
+```
+
+A sample is available in `.env.example`.
 
 ---
 
-## Project Structure
+## 🗂️ Project Structure
 
 ```
 SpecSense/
-├── app/                  # Core logic (parsers, AI tools)
-├── ui/                   # Code for ui creation
-├── tests/                # Unit tests
-├── .env.example          # Template for required secrets
-├── .gitignore
-├── requirements.txt
-├── run.py                # Entry point (optional dev use)
+├── app/                  # Core logic (parser, LLM, grouping, summaries)
+├── ui/                   # Streamlit UI
+├── tests/                # Pytest unit tests
+├── .env.example          # Example env file
 ├── README.md
-└── .venv/                # Virtual environment (not committed)
+├── requirements.txt
+└── run.py                # Optional CLI/dev runner
 ```
 
 ---
 
-## License
+## 📄 License
 
-MIT License — free to use, adapt, and extend.
+MIT License — free to use, modify, and extend.
 
