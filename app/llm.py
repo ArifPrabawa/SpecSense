@@ -170,16 +170,12 @@ def llm_group_requirement(text: str) -> list[str]:
     Returns a list of category names (e.g., ["Authentication", "Security"]).
     """
     from app.requirement_grouper import get_requirement_categories
-    import os
 
     categories = list(get_requirement_categories().keys())
     prompt = build_grouping_prompt(categories)
 
     if not text or len(text.strip()) < 20:
         return []
-
-    if not os.getenv("OPENAI_API_KEY"):
-        return ["⚠️ No API Key"]
 
     try:
         client = get_client()
@@ -219,10 +215,6 @@ def summarize_analysis(analysis_results: dict) -> str:
     Returns:
         str: A Markdown-formatted summary or fallback message.
     """
-    import os
-
-    if not os.getenv("OPENAI_API_KEY"):
-        return "⚠️ Summary skipped — OpenAI API key not set."
 
     summaries = [
         section.get("analysis", "").strip()

@@ -262,7 +262,7 @@ def test_llm_group_requirement_skips_short_input():
 def test_llm_group_requirement_no_api_key(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     result = llm_group_requirement("REQ-7 The system shall log errors.")
-    assert result == ["⚠️ No API Key"]
+    assert result == ["OpenAI error: OpenAI API key not set"]
 
 
 # ✅ Test that summarize_analysis handles missing API key gracefully
@@ -270,7 +270,7 @@ def test_summarize_analysis_skips_without_api_key(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
     result = summarize_analysis({"5.1": {"analysis": "Some analysis here."}})
-    assert result.startswith("⚠️ Summary skipped")
+    assert "OpenAI API key not set" in result
 
 
 # ✅ Test that summarize_analysis skips empty inputs
