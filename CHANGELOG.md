@@ -228,3 +228,16 @@ This version marks the first stable release of SpecSense, an AI-powered analysis
 
 ```bash
 streamlit run ui/streamlit_app.py
+
+## [v1.1.0] – Flask Interface Bootstrap
+
+### Added
+- New `flask_app/` module scaffolding Flask-based frontend for future migration
+- `run.py` entry point with app factory pattern in `app/__init__.py`
+- `routes.py` with basic `Blueprint` and root (`/`) route
+- `templates/index.html` placeholder page
+- Verified functional Flask dev server on `http://localhost:5000`
+
+### Notes
+- This begins the transition from Streamlit to Flask (Day 1 of Flask migration plan)
+- Streamlit UI remains frozen under `ui/` for reference only
