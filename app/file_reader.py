@@ -12,11 +12,20 @@ def read_uploaded_file(uploaded_file) -> Optional[str]:
     if uploaded_file is None:
         return None
 
-    file_type = uploaded_file.name.lower()
+    file_type = getattr(uploaded_file, "filename", None) or getattr(
+        uploaded_file, "name", None
+    )
+
+    if file_type:
+        file_type = file_type.lower()
+    else:
+        return None
 
     if file_type.endswith(".txt"):
         # Decode and return text file content
-        return uploaded_file.read().decode("utf-8")
+        raw = uploaded_file.read()
+        print("🔍 TXT raw byte length:", len(raw))
+        return raw.decode("utf-8")
 
     elif file_type.endswith(".docx"):
         # Use python-docx to extract text from .docx paragraphs

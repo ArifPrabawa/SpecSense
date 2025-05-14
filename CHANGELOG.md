@@ -241,3 +241,19 @@ streamlit run ui/streamlit_app.py
 ### Notes
 - This begins the transition from Streamlit to Flask (Day 1 of Flask migration plan)
 - Streamlit UI remains frozen under `ui/` for reference only
+
+## [v1.2.0] – Flask File Upload + Parser Integration
+
+### Added
+- File upload route `/upload` connected to `read_uploaded_file()` and `parse_sections_with_bodies()`
+- `parsed.html` template to display parsed SRS sections and extracted REQ IDs
+- Compatibility fallback in `read_uploaded_file()` for both Flask (`.filename`) and Streamlit (`.name`)
+
+### Fixed
+- Eliminated `NoneType` errors from empty reads or incorrect file extension checks
+- Ensured `.txt` and `.docx` files decode correctly and trigger parsing flow
+
+### Notes
+- Parser remains centralized under `app/parser.py`
+- Test compatibility preserved by supporting both `.name` and `.filename` paths
+- This completes file ingestion and output rendering in Flask (Day 2 of Flask migration plan)

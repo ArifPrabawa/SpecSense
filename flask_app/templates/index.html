@@ -5,7 +5,16 @@
     <title>SpecSense (Flask)</title>
 </head>
 <body>
-    <h1>Welcome to SpecSense (Flask)</h1>
-    <p>This confirms your Flask UI is running properly.</p>
+    <h1>Upload SRS File</h1>
+
+    <!-- Upload form: sends file to /upload using POST -->
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <label for="srs_file">Select .txt or .docx file:</label><br><br>
+        <input type="file" id="srs_file" name="srs_file" accept=".txt,.docx" required><br><br>
+        <button type="submit">Upload and Parse</button>
+    </form>
+
+    <!-- Optional: Link back to this page -->
+    <p><a href="/">Reset / Upload Another</a></p>
 </body>
 </html>

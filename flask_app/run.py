@@ -1,4 +1,4 @@
-from app import create_app  # Imports the app factory function
+from web import create_app  # Imports the app factory function
 
 app = create_app()
 

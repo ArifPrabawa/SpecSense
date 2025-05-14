@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Parsed Sections - SpecSense</title>
+</head>
+<body>
+    <!-- Page Header -->
+    <h1>Parsed SRS Sections</h1>
+
+    <!-- Display the uploaded filename -->
+    <p><strong>Uploaded File:</strong> {{ filename }}</p>
+
+    <!-- Check if any sections were parsed -->
+    {% if sections %}
+        <hr>
+        <!-- Loop through each parsed section -->
+        {% for section in sections %}
+            <!-- Display the section ID and title -->
+            <h2>
+                {% if section.id %}
+                    {{ section.id }} –
+                {% endif %}
+                {{ section.title }}
+            </h2>
+
+            <!-- Show the raw section body text -->
+            <pre>{{ section.body }}</pre>
+
+            <!-- If requirements were extracted from the body, list them -->
+            {% if section.requirements and section.requirements | length > 0 %}
+                <h4>Detected Requirement IDs:</h4>
+                <ul>
+                    {% for req in section.requirements %}
+                        <li><strong>{{ req.id }}:</strong> {{ req.text }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <!-- Visual separation between sections -->
+            <hr>
+        {% endfor %}
+    {% else %}
+        <!-- If no sections were found, show fallback -->
+        <p>No sections were detected in the uploaded file.</p>
+    {% endif %}
+
+    <!-- Link to return to file upload form -->
+    <p><a href="/">Upload another file</a></p>
+</body>
+</html>
