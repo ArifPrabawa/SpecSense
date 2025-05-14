@@ -53,3 +53,11 @@ def test_is_docx_toc_paragraph_detection():
 
     assert is_docx_toc_paragraph(toc_mock) is True
     assert is_docx_toc_paragraph(real_mock) is False
+
+
+# Test .txt file upload using Flask-style `.filename` instead of `.name`
+def test_read_uploaded_txt_file_flask_style():
+    fake_txt = BytesIO(b"The system shall shut down securely.")
+    fake_txt.filename = "example.txt"  # simulate Flask-style upload
+    result = read_uploaded_file(fake_txt)
+    assert "shut down securely" in result
