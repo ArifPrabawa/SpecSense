@@ -38,6 +38,13 @@
             {% endif %}
 
             <!-- Visual separation between sections -->
+             <!-- If analysis was added by LLM, display it -->
+            {% if section.analysis %}
+                <h4>LLM Analysis:</h4>
+                <div class="llm-analysis">
+                    {{ section.analysis | safe }}
+                </div>
+            {% endif %}
             <hr>
         {% endfor %}
     {% else %}

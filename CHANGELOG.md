@@ -257,3 +257,24 @@ streamlit run ui/streamlit_app.py
 - Parser remains centralized under `app/parser.py`
 - Test compatibility preserved by supporting both `.name` and `.filename` paths
 - This completes file ingestion and output rendering in Flask (Day 2 of Flask migration plan)
+
+## [v1.3.0] – LLM Requirement Analysis Integration
+
+### Added
+- Integrated `analyze_requirement()` from `llm.py` into the `/upload` route
+- Each parsed section now includes LLM-generated analysis of clarity, ambiguity, vagueness, and testability
+- `parsed.html` updated to display `analysis` output using `|safe` rendering for Markdown-style results
+
+### Fixed
+- Resolved `TemplateNotFound` errors in route tests by explicitly setting `template_folder` in Flask app
+- Corrected test patching scope by targeting `flask_app.web.routes.analyze_requirement` directly
+
+### Tested
+- Added `tests/test_routes.py` with full upload/parse/analyze round-trip test
+- LLM API calls mocked with `unittest.mock.patch` to avoid real API usage
+- Confirmed clean test suite with `pytest`, `black`, `flake8`, and `mypy`
+
+### Notes
+- Output format preserves original parsing structure while appending LLM insights
+- Analysis logic is optional and modular for future toggles or feature isolation
+- This completes Day 3 of the Flask migration plan
