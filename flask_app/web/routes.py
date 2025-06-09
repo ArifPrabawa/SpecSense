@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 # Internal imports (after sys.path fix)
 from app.file_reader import read_uploaded_file  # noqa: E402
 from app.parser import parse_sections_with_bodies  # noqa: E402
-from app.llm import analyze_requirement  # noqa: E402
+from app.llm import analyze_requirement, suggest_tests  # noqa: E402
 
 main = Blueprint("main", __name__)
 
@@ -54,6 +54,7 @@ def upload_file():
     for section in parsed_sections:
         body_text = section.get("body", "").strip()
         section["analysis"] = analyze_requirement(body_text)
+        section["test_suggestions"] = suggest_tests(body_text)
 
     # Pass the parsed results into the parsed.html template
     return render_template("parsed.html", sections=parsed_sections, filename=filename)

@@ -45,6 +45,13 @@
                     {{ section.analysis | safe }}
                 </div>
             {% endif %}
+
+            {% if section.test_suggestions %}
+                <h4>Suggested Test Cases:</h4>
+                <div class="test-suggestions">
+                    {{ section.test_suggestions | safe }}
+                </div>
+            {% endif %}
             <hr>
         {% endfor %}
     {% else %}

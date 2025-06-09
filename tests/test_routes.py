@@ -17,6 +17,8 @@ def client():
 def test_upload_parses_and_runs_llm(client):
     with patch(
         "flask_app.web.routes.analyze_requirement", return_value="🧪 Mocked analysis"
+    ), patch(
+        "flask_app.web.routes.suggest_tests", return_value="🧪 Mocked test suggestion"
     ):
         data = {
             "srs_file": (
@@ -31,3 +33,4 @@ def test_upload_parses_and_runs_llm(client):
         assert b"Test Section" in response.data
         assert b"REQ-1" in response.data
         assert b"Mocked analysis" in response.data
+        assert b"Mocked test suggestion" in response.data

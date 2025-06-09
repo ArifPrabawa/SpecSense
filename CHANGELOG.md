@@ -278,3 +278,18 @@ streamlit run ui/streamlit_app.py
 - Output format preserves original parsing structure while appending LLM insights
 - Analysis logic is optional and modular for future toggles or feature isolation
 - This completes Day 3 of the Flask migration plan
+
+## [v1.4.0] – LLM Test Suggestion Integration
+
+### Added
+- Integrated `suggest_tests()` from `llm.py` into the `/upload` route
+- Displayed bullet-style test suggestions for each section in `parsed.html`
+
+### Fixed
+- Extended test in `test_routes.py` to mock `suggest_tests()` output alongside `analyze_requirement()`
+- Ensured test suggestion rendering is skipped for short inputs by leveraging built-in length guard
+
+### Notes
+- Test suggestions are Markdown-formatted and safely rendered
+- All LLM calls remain fully mocked in test environment
+- This completes Day 4 of the Flask migration sprint
