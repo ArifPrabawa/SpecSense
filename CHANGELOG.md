@@ -293,3 +293,26 @@ streamlit run ui/streamlit_app.py
 - Test suggestions are Markdown-formatted and safely rendered
 - All LLM calls remain fully mocked in test environment
 - This completes Day 4 of the Flask migration sprint
+
+## [v1.5.0] – Traceability Markdown Export
+
+### Added
+- **/traceability** route in `flask_app/web/routes.py`  
+  - Accepts either a freshly-uploaded file **or** the raw SRS text returned via a hidden form field.
+- **format_traceability_as_markdown()** in `app/export.py`  
+  - Builds a Markdown table of `Requirement ID → Section` using existing `build_traceability_index()`.
+- **Download Traceability Markdown** button in `parsed.html`  
+  - Posts the raw document back via a hidden `<textarea>`—no extra file browse required.
+
+### Tested
+- Extended `tests/test_routes.py`  
+  - Upload test still mocks LLMs.  
+  - New `test_traceability_download_via_text` posts `srs_text` and asserts Markdown output.
+- Updated `test_export.py` sample data to include `id` key, matching real parser output.
+
+### Fixed
+- Removed duplicate code block in `/traceability` route; file and raw-text handling share a single logic path.
+
+### Notes
+- No real OpenAI calls in any tests (all relevant functions patched).  
+- Table downloads as `traceability.md` and renders correctly for SRS files containing `REQ-` IDs.

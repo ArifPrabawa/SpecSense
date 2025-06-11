@@ -1,7 +1,7 @@
 # Standard library imports (always first)
 import sys
 import os
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, Response
 
 # Add project root to sys.path for outer app/ imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 from app.file_reader import read_uploaded_file  # noqa: E402
 from app.parser import parse_sections_with_bodies  # noqa: E402
 from app.llm import analyze_requirement, suggest_tests  # noqa: E402
+from app.export import format_traceability_as_markdown  # noqa:E402
 
 main = Blueprint("main", __name__)
 
@@ -57,4 +58,37 @@ def upload_file():
         section["test_suggestions"] = suggest_tests(body_text)
 
     # Pass the parsed results into the parsed.html template
-    return render_template("parsed.html", sections=parsed_sections, filename=filename)
+    return render_template(
+        "parsed.html",
+        sections=parsed_sections,
+        filename=filename,
+        file_text=file_text,  # 🆕  pass raw contents
+    )
+
+
+@main.route("/traceability", methods=["POST"])
+def generate_traceability():
+    uploaded_file = request.files.get("srs_file")
+    raw_text = request.form.get("srs_text")
+
+    if uploaded_file:
+        file_text = read_uploaded_file(uploaded_file)
+        filename = uploaded_file.filename.lower()
+        if not (filename.endswith(".txt") or filename.endswith(".docx")):
+            return "Error: Only .txt or .docx files are supported.", 400
+    elif raw_text:
+        file_text = raw_text
+        filename = "traceability"
+    else:
+        return "Error: No file selected.", 400
+
+    parsed_sections = parse_sections_with_bodies(file_text)
+    trace_md = format_traceability_as_markdown(parsed_sections)
+
+    return Response(
+        trace_md,
+        mimetype="text/markdown",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}_traceability.md"
+        },
+    )

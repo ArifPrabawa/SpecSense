@@ -5,6 +5,9 @@ from app.export import (
     generate_requirement_summary_from_sections,
 )
 
+# tests/test_export.py  (append)
+from app.export import format_traceability_as_markdown
+
 
 # Test that format_analysis_as_markdown returns correctly structured Markdown
 # for a single analyzed section, including all required headers and content blocks.
@@ -147,3 +150,21 @@ def test_generate_summary_from_sections():
     summary = generate_requirement_summary_from_sections(sections)
     assert "Authentication" in summary
     assert "Error Handling" in summary
+
+
+def test_format_traceability_as_markdown_basic():
+    sections = [
+        {
+            "id": None,
+            "title": "Login",
+            "requirements": [{"id": "REQ-1", "text": "Login shall..."}],
+        },
+        {
+            "id": None,
+            "title": "Logout",
+            "requirements": [{"id": "REQ-2", "text": "Logout shall..."}],
+        },
+    ]
+    md = format_traceability_as_markdown(sections)
+    assert "| REQ-1 | Login |" in md
+    assert "| REQ-2 | Logout |" in md

@@ -7,7 +7,11 @@
 <body>
     <!-- Page Header -->
     <h1>Parsed SRS Sections</h1>
-
+    <form action="/traceability" method="post">
+        <!-- Hidden textarea sends the entire document back -->
+        <textarea name="srs_text" style="display:none;">{{ file_text }}</textarea>
+        <button type="submit">Download Traceability Markdown</button>
+    </form>
     <!-- Display the uploaded filename -->
     <p><strong>Uploaded File:</strong> {{ filename }}</p>
 

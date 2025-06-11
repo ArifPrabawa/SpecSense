@@ -1,6 +1,7 @@
 import re
 from app.requirement_grouper import group_requirements, detect_gaps
 from app.llm import llm_group_requirement
+from app.traceability import build_traceability_index
 
 
 def format_analysis_as_markdown(analysis_results: dict) -> str:
@@ -108,3 +109,25 @@ def group_requirements_with_llm(parsed_sections: list[dict]) -> list[dict]:
         enriched.append({"id": req["id"], "text": req["text"], "llm_group": groups})
 
     return enriched
+
+
+def format_traceability_as_markdown(sections: list[dict]) -> str:
+    """
+    Convert extracted requirements into a Markdown table.
+
+    Args:
+        sections (list[dict]): Parsed sections, each with 'title' and
+                               'requirements' keys produced by
+                               parse_sections_with_bodies().
+
+    Returns:
+        str: Markdown-formatted traceability table, or a warning string if
+             no requirements were detected.
+    """
+    index = build_traceability_index(sections)
+    if not index:
+        return "⚠️ No requirements detected."
+
+    header = "| Requirement ID | Section |\n| --- | --- |"
+    rows = [f"| {rid} | {data['section_title']} |" for rid, data in index.items()]
+    return "\n".join([header] + rows)
