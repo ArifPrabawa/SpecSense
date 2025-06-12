@@ -316,3 +316,27 @@ streamlit run ui/streamlit_app.py
 ### Notes
 - No real OpenAI calls in any tests (all relevant functions patched).  
 - Table downloads as `traceability.md` and renders correctly for SRS files containing `REQ-` IDs.
+
+## [v1.6.0] – UI Polish & Upload-Validation Helper
+
+### Added
+- **Bootstrap 5 styling** for `parsed.html`  
+  - CDN link added in `<head>`.  
+  - Content wrapped in `.container` with `bg-light` body.  
+  - Requirement IDs rendered in a compact striped table.  
+  - “Download Traceability Markdown” button styled with `btn btn-primary`.
+- **`validate_and_read_upload()`** in `app/utils.py`  
+  - Centralised file / raw-text handling: presence, extension check, decode.  
+  - Returns `(filename, file_text)` or raises `ValueError`.
+
+### Changed
+- `/upload` and `/traceability` routes now call the helper; redundant validation blocks removed.
+- `parsed.html` now posts the raw SRS text via a hidden `<textarea>` instead of re-uploading the file.
+
+### Tested
+- Existing route tests remain green; optional patch path ready to mock `validate_and_read_upload` directly.
+- No real OpenAI calls; LLM helpers still fully mocked.
+
+### Notes
+- UI polish required **zero** new build tooling—pure CDN.
+- Helper paves the way for future endpoints without duplicating validation logic.
