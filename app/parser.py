@@ -151,8 +151,15 @@ def parse_sections_with_bodies(text):
         elif is_fallback_header(line):
             section_id, section_title = None, line.strip()
         else:
-            # Accumulate body
-            if current_section:
+            # ──────────────────────────────────────────────────────
+            # Graceful fallback: if we haven't started a section yet
+            # and this is the first meaningful line, create
+            # "Unknown Header" so content isn't lost.
+            # ──────────────────────────────────────────────────────
+            if current_section is None and line.strip():
+                current_section = {"id": None, "title": "Unknown Header"}
+                current_body.append(line)
+            elif current_section:
                 current_body.append(line)
             continue
 

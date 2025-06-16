@@ -134,14 +134,16 @@ Has content here.
 
 
 # Test parsing returns empty list when no valid headers exist
-def test_no_headers_returns_empty_list():
+def test_no_headers_returns_unknown_header():
     text = textwrap.dedent(
         """This document lacks headers.
 Just some raw content.
 """
     )
-    expected = []
-    assert parse_sections_with_bodies(text) == expected
+    result = parse_sections_with_bodies(text)
+    assert len(result) == 1
+    assert result[0]["title"] == "Unknown Header"
+    assert "This document lacks headers." in result[0]["body"]
 
 
 # Test mixed header formats are parsed with correct IDs and bodies
@@ -190,16 +192,12 @@ SYSTEM OVERVIEW
 This section defines system boundaries.
 """
     )
-
     result = parse_sections_with_bodies(text)
 
-    assert len(result) == 2
-
-    assert result[0]["title"] == "TEST"
-    assert "This is a test section." in result[0]["body"]
-
-    assert result[1]["title"] == "SYSTEM OVERVIEW"
-    assert "This section defines system boundaries." in result[1]["body"]
+    titles = [s["title"] for s in result]
+    assert "Unknown Header" in titles  # intro captured
+    assert "TEST" in titles
+    assert "SYSTEM OVERVIEW" in titles
 
 
 # Test the short title-case lines like 'Scope' or 'Purpose' fallback
@@ -291,3 +289,17 @@ def test_strip_title_block_removes_metadata_lines():
     assert "Date: 2025-04-22" not in result
     assert result[0] == "1 Introduction"
     assert result[1] == "This is the actual first section."
+
+
+def test_unknown_header_fallback():
+    raw = """
+First line with no header
+Second body line
+
+# Real Header
+Body under real header
+"""
+    sections = parse_sections_with_bodies(raw)
+    assert sections[0]["title"] == "Unknown Header"
+    assert "First line with no header" in sections[0]["body"]
+    assert sections[1]["title"] == "Real Header"
