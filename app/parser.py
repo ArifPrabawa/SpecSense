@@ -15,6 +15,7 @@ from app.header_rules import (
     is_fallback_header,
     extract_id_and_title,
     is_toc_line,
+    is_isolated_all_caps_header,
 )
 
 
@@ -140,19 +141,17 @@ def parse_sections_with_bodies(text):
         prev_line = lines[i - 1].strip() if i > 0 else ""
         next_line = lines[i + 1].strip() if i + 1 < len(lines) else ""
 
-        # Only treat ALL CAPS as header if visually separated
-        is_isolated_all_caps = is_all_caps_header(line) and (
-            prev_line == "" or next_line == ""
-        )
         # Check for any valid section header
         if is_markdown_header(line):
             section_id, section_title = extract_id_and_title(line[2:].strip())
-        elif is_numbered_header(line) or is_isolated_all_caps:
+        elif is_numbered_header(line) or is_isolated_all_caps_header(
+            line, prev_line, next_line
+        ):
             section_id, section_title = extract_id_and_title(line.strip())
         elif is_fallback_header(line):
             section_id, section_title = None, line.strip()
         else:
-            # Accumulate body lines under current section
+            # Accumulate body
             if current_section:
                 current_body.append(line)
             continue

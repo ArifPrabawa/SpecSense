@@ -78,3 +78,13 @@ def clean_toc_line(line: str) -> str:
         r"(\d+\.\d+)\.\s+", r"\1 ", line
     )  # Normalize '1.2. Title' → '1.2 Title'
     return line
+
+
+def is_isolated_all_caps_header(line: str, prev_line: str, next_line: str) -> bool:
+    """
+    ALL-CAPS line qualifies only if it is visually isolated by blank lines
+    above or below.
+    """
+    return is_all_caps_header(line) and (
+        prev_line.strip() == "" or next_line.strip() == ""
+    )
