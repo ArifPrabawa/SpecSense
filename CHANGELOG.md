@@ -340,3 +340,24 @@ streamlit run ui/streamlit_app.py
 ### Notes
 - UI polish required **zero** new build tooling—pure CDN.
 - Helper paves the way for future endpoints without duplicating validation logic.
+
+## [v1.7.0] – Header Parser DRY & Resilience
+
+### Added
+- `is_isolated_all_caps_header()` helper in `app/header_rules.py`.
+- `tests/test_header_rules.py` covering all header-detection helpers, including the new isolated ALL-CAPS rule.
+- Graceful fallback in `app/parser.py`: if a document starts with text that doesn’t match any header rule, a synthetic **“Unknown Header”** section is created so content is not lost.
+- New unit test `tests/test_parser_fallback.py` verifying the fallback behavior.
+
+### Changed
+- Parser now calls the new helper instead of inline regex logic.
+- Existing parser tests updated to expect an **“Unknown Header”** section when appropriate.
+- Minor UI touch: Bootstrap-styled page (carried forward from v1.6.0).
+
+### Fixed
+- Removed duplicate header-regex logic from `parser.py`; all rules now live in `header_rules.py`.
+- `app/utils.py` guard against `None` filenames satisfies `mypy`.
+
+### Notes
+- All tests and mypy pass (`pytest`, `mypy app/ tests/`).
+- No real OpenAI usage in test runs (LLM helpers remain mocked).
